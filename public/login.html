@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{{title}} · S1 HR Solution</title>
+  <link rel="icon" href="/favicon.svg"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Outfit:wght@340;460;560&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body data-portal="{{portal}}">
+  <main class="login-split">
+    <section class="login-brand">
+      <div>
+        <a class="mark" href="/" style="text-decoration:none;color:inherit;">S1</a>
+        <p class="kicker" style="margin-top:28px;">{{kicker}}</p>
+        <h1>{{title}}</h1>
+        <p class="lede">{{lede}}</p>
+      </div>
+      <p><a href="/" style="color:inherit;">All desks</a></p>
+    </section>
+    <section class="login-panel">
+      <div class="login-card">
+        <p class="kicker">Sign in</p>
+        <h2>Welcome back</h2>
+        <p class="muted">Use the credentials issued for this desk. An account from another portal will be refused.</p>
+        <form id="login-form" class="stack">
+          <label class="field">Email<input name="email" type="email" autocomplete="username" required value="{{email}}"/></label>
+          <label class="field">Password<input name="password" type="password" autocomplete="current-password" required value="{{password}}"/></label>
+          <p id="form-error" class="form-error" hidden></p>
+          <button class="btn primary full" type="submit">Enter {{title}}</button>
+        </form>
+        <aside class="demo-card">
+          <strong>Demo access</strong>
+          <p class="muted">{{who}}</p>
+          <p><code>{{email}}</code><br/><code>{{password}}</code></p>
+        </aside>
+        <p class="muted" id="register-note"></p>
+      </div>
+    </section>
+  </main>
+  <script src="/js/login.js"></script>
+</body>
+</html>

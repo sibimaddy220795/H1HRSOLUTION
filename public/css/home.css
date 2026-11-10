@@ -1,0 +1,74 @@
+.home { background: #f5f8fc; color: #1c2740; font-family: Inter, "Segoe UI", sans-serif; }
+.home .top { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 16px 7vw; background: rgba(255,255,255,.92); border-bottom: 1px solid #e6edf5; }
+.home .brand { display: flex; align-items: center; gap: 8px; font-weight: 720; text-decoration: none; color: #1c2740; }
+.home .brand span { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: #2457d6; color: white; font-size: 14px; }
+.home nav { display: flex; gap: 22px; }
+.home nav a { text-decoration: none; color: #5c6b82; font-size: 14px; }
+.login-pill { position: relative; }
+.login-pill summary { list-style: none; cursor: pointer; background: #1c2740; color: white; border-radius: 999px; padding: 8px 16px; }
+.login-pill summary::-webkit-details-marker { display: none; }
+.login-pill a { display: block; padding: 8px 12px; text-decoration: none; color: #1c2740; background: white; }
+.login-pill[open] { background: white; border: 1px solid #e6edf5; border-radius: 14px; padding: 6px; }
+.hero, .band, .pricing, .seamless, .designing, .services, .showcase, .contact, .blog { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+.hero { text-align: center; padding: 54px 0 20px; }
+.eyebrow { letter-spacing: .14em; text-transform: uppercase; color: #6d7c93; font-size: 12px; }
+.hero h1, .effort h2, .seamless h2, .designing h2, .services h2, .showcase h2, .contact h2, .blog h2 { font-weight: 720; letter-spacing: -0.04em; color: #17233d; }
+.hero h1 { font-size: clamp(40px, 5vw, 62px); line-height: 1.05; margin: 10px 0; }
+.lede { max-width: 620px; margin: 0 auto 18px; color: #5c6b82; }
+.cta, .phones, .service-grid, .quotes { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn { border-radius: 10px; padding: 11px 16px; text-decoration: none; display: inline-flex; align-items: center; border: 1px solid transparent; cursor: pointer; }
+.btn.solid { background: #2457d6; color: white; }
+.btn.ghost { background: white; color: #1c2740; border-color: #d5deea; }
+.board { margin-top: 28px; text-align: left; background: white; border: 1px solid #e6edf5; border-radius: 22px; box-shadow: 0 24px 60px rgba(28, 55, 110, .08); padding: 16px; }
+.board header, .metrics, .board-grid { display: flex; gap: 10px; align-items: center; }
+.board header { justify-content: space-between; color: #6d7c93; font-size: 13px; }
+.chip { border: 1px solid #e6edf5; border-radius: 999px; padding: 6px 12px; }
+.board-grid { align-items: stretch; margin-top: 12px; }
+.board aside { width: 140px; display: grid; gap: 8px; color: #6d7c93; font-size: 13px; }
+.board aside .on { color: #2457d6; font-weight: 640; }
+.metrics { flex: 1; }
+.metrics article, .status-bars, .donut, .mini-board, .side-cards article, .price, .industries, .phones article, .news-card, .service-grid article, .quotes article, .sheet { background: #f8fbff; border: 1px solid #e6edf5; border-radius: 16px; }
+.metrics article { padding: 12px; min-width: 110px; }
+.metrics b { display: block; font-size: 26px; }
+.metrics small, .status-bars, .donut { color: #6d7c93; font-size: 12px; }
+.status-bars { padding: 12px; min-width: 180px; }
+.status-bars span { display: block; margin-top: 6px; background: linear-gradient(90deg, #2457d6 var(--w), #e8eef8 var(--w)); color: #1c2740; border-radius: 8px; padding: 4px 8px; }
+.donut { width: 140px; display: grid; place-items: center; }
+.donut strong { width: 72px; height: 72px; border-radius: 50%; border: 10px solid #2457d6; display: grid; place-items: center; color: #17233d; }
+.band { display: grid; grid-template-columns: .8fr .7fr 1fr; gap: 16px; align-items: center; padding: 48px 0; }
+.effort h2 { font-size: 40px; line-height: 1.05; }
+.stars { color: #e0a106; }
+.mini-board, .side-cards article, .price, .industries, .phones article, .news-card, .service-grid article, .quotes article { padding: 16px; }
+.bars { display: flex; gap: 8px; align-items: end; height: 90px; margin-top: 12px; }
+.bars i { display: block; width: 18px; background: #2457d6; border-radius: 6px 6px 0 0; }
+.bars i:nth-child(1) { height: 40%; } .bars i:nth-child(2) { height: 75%; } .bars i:nth-child(3) { height: 55%; } .bars i:nth-child(4) { height: 88%; }
+.side-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.side-cards h3, .price h3, .phones h3, .service-grid h3 { margin: 0 0 6px; font-size: 16px; }
+.logos { display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; color: #8ea0b8; font-weight: 720; letter-spacing: .04em; padding-bottom: 10px; }
+.pricing { display: grid; grid-template-columns: repeat(4, 1fr) .9fr; gap: 12px; padding-bottom: 40px; }
+.price p, .industries h3 { color: #2457d6; font-size: 13px; margin: 0 0 6px; }
+.price ul, .industries ul { margin: 0 0 12px; padding-left: 16px; color: #5c6b82; font-size: 13px; }
+.price a { color: #2457d6; font-weight: 640; }
+.industries ul { columns: 2; }
+.seamless { text-align: center; padding: 30px 0 50px; }
+.pill { display: inline-block; background: #e7eefc; color: #2457d6; border-radius: 999px; padding: 6px 12px; font-size: 13px; }
+.seamless h2 { font-size: clamp(36px, 5vw, 54px); margin: 8px 0; }
+.phones { margin-top: 22px; align-items: stretch; }
+.phones article { width: min(300px, 100%); text-align: left; }
+.phones li { padding: 8px 0; border-bottom: 1px solid #e6edf5; }
+.designing, .contact { display: grid; grid-template-columns: 1.1fr .9fr; gap: 22px; align-items: center; padding: 20px 0 40px; }
+.nodes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.nodes span { background: white; border: 1px solid #d5e4f7; border-radius: 999px; padding: 8px 12px; }
+.news-card label, .sheet label { display: grid; gap: 6px; font-size: 13px; color: #5c6b82; margin-bottom: 10px; }
+.news-card input, .sheet input, .sheet select, .sheet textarea { border: 1px solid #d5deea; border-radius: 10px; padding: 11px 12px; font: inherit; }
+.services, .blog, .showcase { padding-bottom: 36px; }
+.service-grid, .quotes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.showcase { display: grid; grid-template-columns: .7fr 1.3fr; gap: 18px; align-items: start; }
+.foot { text-align: center; color: #6d7c93; padding: 18px; }
+.foot a { color: #2457d6; }
+@media (max-width: 980px) {
+  .home nav { display: none; }
+  .band, .pricing, .designing, .contact, .showcase, .service-grid, .quotes { grid-template-columns: 1fr; }
+  .board-grid { display: grid; }
+  .board aside { width: auto; grid-template-columns: repeat(3, auto); }
+}

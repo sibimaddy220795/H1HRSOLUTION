@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Business admin registration · Runwork</title>
+  <link rel="icon" href="/favicon.svg"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@420;560;720&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/styles.css"/>
+  <link rel="stylesheet" href="/css/register.css"/>
+</head>
+<body class="reg">
+  <main>
+    <aside>
+      <a class="brand" href="/"><span>R</span><strong>Runwork</strong></a>
+      <p class="tag">Smarter workforce. Stronger desks.</p>
+      <h1>Build your business admin</h1>
+      <p>Create the company account and ask the super admin to approve it. The client admin login stays off until that review.</p>
+      <ul>
+        <li><strong>Business tools</strong><span>People, attendance, and payroll in one workspace.</span></li>
+        <li><strong>Secure records</strong><span>Each desk sees only the company it belongs to.</span></li>
+        <li><strong>Connected teams</strong><span>Employee, admin, and client admin share the same record.</span></li>
+        <li><strong>A clear plan</strong><span>Choose the subscription and the payment method before you submit.</span></li>
+      </ul>
+    </aside>
+    <section>
+      <header>
+        <div>
+          <h2>Business admin registration</h2>
+          <p>Complete the steps to submit your business for approval.</p>
+        </div>
+        <a href="/login/client-admin">Already registered? Sign in</a>
+      </header>
+      <ol class="steps">
+        <li class="on" data-step="1">Business details</li>
+        <li data-step="2">Admin details</li>
+        <li data-step="3">Documents</li>
+        <li data-step="4">Review and submit</li>
+      </ol>
+      <form id="register-form">
+        <fieldset data-panel="1">
+          <h3>Business details</h3>
+          <p>Tell us about the business or organisation.</p>
+          <label>Registered business name<input name="companyName" required placeholder="Enter your business name"/></label>
+          <div class="pair">
+            <label>Business type<select name="businessType" required><option value="">Select business type</option><option>Information technology</option><option>Logistics</option><option>Healthcare</option><option>Manufacturing</option><option>Professional services</option><option>Other</option></select></label>
+            <label>Country<input name="country" value="India"/></label>
+          </div>
+          <div class="pair">
+            <label>State<input name="state" required placeholder="State"/></label>
+            <label>City<input name="city" required placeholder="City"/></label>
+          </div>
+          <label>Registered business address<textarea name="address" rows="2" required placeholder="Enter the complete business address"></textarea></label>
+          <div class="pair">
+            <label>GST number (optional)<input name="gstin" placeholder="GSTIN if applicable"/></label>
+            <label>Website (optional)<input name="website" placeholder="https://example.com"/></label>
+          </div>
+        </fieldset>
+        <fieldset data-panel="2" hidden>
+          <h3>Business admin details</h3>
+          <p>This email is stored for the client admin sign-in after the super admin approves the company.</p>
+          <label>Full name<input name="adminName" required placeholder="Enter your full name"/></label>
+          <label>Business email address<input name="officialMail" type="email" required placeholder="admin@company.com"/></label>
+          <div class="pair">
+            <label>Contact number<input name="phone" required placeholder="Contact number"/></label>
+            <label>Designation<select name="designation" required><option value="">Select designation</option><option>Client admin</option><option>Director</option><option>HR head</option><option>Finance head</option><option>Operations head</option></select></label>
+          </div>
+          <div class="pair">
+            <label>Create password<input name="password" type="password" required minlength="12" placeholder="At least 12 characters"/></label>
+            <label>Confirm password<input name="confirmPassword" type="password" required minlength="12" placeholder="Re-enter password"/></label>
+          </div>
+          <p class="hint">The login stays inactive until the super admin approves the company.</p>
+        </fieldset>
+        <fieldset data-panel="3" hidden>
+          <h3>Documents</h3>
+          <p>Incorporation, GST, MSME, PAN, and the trade licence are required.</p>
+          <label>Incorporation certificate<input name="incorporation" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" required/></label>
+          <label>GST certificate<input name="gst" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" required/></label>
+          <label>MSME / Udyam<input name="msme" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" required/></label>
+          <label>PAN card<input name="pan" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" required/></label>
+          <label>Trade licence<input name="trade" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" required/></label>
+          <label>Additional documents<input name="extra" type="file" multiple/></label>
+        </fieldset>
+        <fieldset data-panel="4" hidden>
+          <h3>Review and submit</h3>
+          <div id="review"></div>
+          <label>Subscription plan<select name="plan" required></select></label>
+          <div id="plan-preview"></div>
+          <div class="pair">
+            <label>Payment method<select name="paymentMethod" required><option value="UPI">UPI</option><option value="Bank transfer">Bank transfer</option><option value="Card">Card</option><option value="Net banking">Net banking</option><option value="Cheque">Cheque</option></select></label>
+            <label>Payment reference<input name="paymentReference" placeholder="UPI ID, cheque number, or transfer reference"/></label>
+          </div>
+          <p class="hint">Card numbers are not stored.</p>
+          <label class="check"><input name="consent" type="checkbox" value="yes" required/> I confirm these documents belong to the company.</label>
+        </fieldset>
+        <p id="form-error" class="form-error" hidden></p>
+        <footer>
+          <button class="btn ghost" id="back" type="button">Back</button>
+          <button class="btn solid" id="next" type="button">Next: Admin details</button>
+          <button class="btn solid" id="submit" type="submit" hidden>Submit for approval</button>
+        </footer>
+      </form>
+    </section>
+  </main>
+  <script src="/js/register.js"></script>
+</body>
+</html>
