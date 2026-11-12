@@ -39,7 +39,9 @@ app.use('/uploads', express.static(uploadDir));
 
 function tokenFrom(req) {
   const header = req.headers.authorization || '';
-  return header.startsWith('Bearer ') ? header.slice(7) : '';
+  if (header.startsWith('Bearer ')) return header.slice(7);
+  if (req.query && req.query.token) return req.query.token;
+  return '';
 }
 
 function auth(req, res, next) {
@@ -217,6 +219,7 @@ app.post('/api/jobs', auth, wrap(async (req, res) => res.status(201).json({ succ
 app.put('/api/jobs/:id', auth, wrap(async (req, res) => res.json({ success: true, data: db.saveJob(req.user, req.body, req.params.id) })));
 
 app.get('/api/attendance', auth, wrap(async (req, res) => res.json({ success: true, data: db.listAttendance(req.user, req.query) })));
+app.get('/api/attendance/my-qr', auth, wrap(async (req, res) => res.json({ success: true, data: await db.getEmployeeQr(req.user, req.query.employeeId) })));
 app.post('/api/attendance/punch', auth, wrap(async (req, res) => res.json({ success: true, data: db.punch(req.user, req.body) })));
 app.post('/api/attendance/capture', auth, wrap(async (req, res) => res.json({ success: true, data: db.captureAttendance(req.user, req.body) })));
 app.get('/api/attendance/timesheet', auth, wrap(async (req, res) => res.json({ success: true, data: db.timesheet(req.user, req.query) })));
@@ -273,9 +276,56 @@ app.post('/api/activities/:id/files', auth, upload.single('file'), wrap(async (r
   }
 }));
 
+const sseClients = new Map();
+
+if (typeof db.onMessage === 'function') {
+  db.onMessage((msg) => {
+    const payload = `data: ${JSON.stringify(msg)}\n\n`;
+    for (const [clientId, client] of sseClients.entries()) {
+      try {
+        const user = client.user;
+        let allowed = false;
+        if (msg.channel.startsWith('dm:')) {
+          const parts = msg.channel.split(':');
+          allowed = parts[1] === user.id || parts[2] === user.id;
+        } else if (msg.channel === 'desk' || msg.channel === 'activities' || msg.channel === 'queries' || msg.channel === 'posh') {
+          allowed = true;
+        } else if (msg.channel.startsWith('company:')) {
+          allowed = user.role === 'admin' || user.role === 'superadmin' || msg.channel === `company:${user.clientId}`;
+        }
+        if (allowed) {
+          client.res.write(payload);
+        }
+      } catch (_) {}
+    }
+  });
+}
+
 app.get('/api/messages/channels', auth, wrap(async (req, res) => res.json({ success: true, data: db.channelsFor(req.user) })));
+app.get('/api/messages/users', auth, wrap(async (req, res) => res.json({ success: true, data: db.searchUsers(req.user, req.query.q) })));
 app.get('/api/messages', auth, wrap(async (req, res) => res.json({ success: true, data: db.listMessages(req.user, req.query.channel) })));
 app.post('/api/messages', auth, wrap(async (req, res) => res.status(201).json({ success: true, data: db.sendMessage(req.user, req.body) })));
+app.get('/api/messages/stream', auth, (req, res) => {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache, no-transform',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': '*'
+  });
+  res.write(': connected\n\n');
+
+  const clientId = crypto.randomUUID();
+  sseClients.set(clientId, { user: req.user, res });
+
+  const heartbeat = setInterval(() => {
+    try { res.write(': ping\n\n'); } catch (_) {}
+  }, 20000);
+
+  req.on('close', () => {
+    clearInterval(heartbeat);
+    sseClients.delete(clientId);
+  });
+});
 app.put('/api/profile', auth, wrap(async (req, res) => res.json({ success: true, data: db.updateProfile(req.user, req.body) })));
 
 app.get('/api/tickets', auth, wrap(async (req, res) => res.json({ success: true, data: db.listTickets(req.user) })));

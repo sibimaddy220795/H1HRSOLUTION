@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { DatabaseSync } = require('node:sqlite');
+const QRCode = require('qrcode');
 const payroll = require('./payroll');
 const plans = require('./plans');
 const { seed } = require('./seed');
@@ -109,12 +110,27 @@ function notify(audience, title, message) {
     VALUES (?, ?, ?, ?, ?, 0)`).run(crypto.randomUUID(), audience, clip(title, 140), clip(message, 500), new Date().toISOString());
 }
 
+const messageListeners = new Set();
+
+function onMessage(fn) {
+  messageListeners.add(fn);
+  return () => messageListeners.delete(fn);
+}
+
+function notifyMessage(msg) {
+  for (const fn of messageListeners) {
+    try { fn(msg); } catch (_) {}
+  }
+}
+
 function insertMessage({ channel, clientId = null, senderId, senderName, senderRole, body }) {
   const id = crypto.randomUUID();
   const created = new Date().toISOString();
   database.prepare(`INSERT INTO messages (id, channel, client_id, sender_id, sender_name, sender_role, body, created_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`).run(id, channel, clientId, senderId, senderName, senderRole, clip(body, 2000), created);
-  return { id, channel, clientId, senderId, senderName, senderRole, body: clip(body, 2000), createdAt: created };
+  const msg = { id, channel, clientId, senderId, senderName, senderRole, body: clip(body, 2000), createdAt: created };
+  notifyMessage(msg);
+  return msg;
 }
 
 function audiencesFor(user) {
@@ -125,6 +141,11 @@ function audiencesFor(user) {
 
 function loadUser(row) {
   const hrAdmin = row.role === 'hradmin';
+  let employeeId = row.employee_id || '';
+  if (!employeeId && row.email) {
+    const emp = database.prepare('SELECT id FROM employees WHERE lower(email) = lower(?)').get(row.email);
+    if (emp) employeeId = emp.id;
+  }
   return {
     id: row.id,
     role: hrAdmin ? 'client' : row.role,
@@ -134,7 +155,7 @@ function loadUser(row) {
     phone: row.phone || '',
     title: row.title || '',
     clientId: row.client_id || '',
-    employeeId: row.employee_id || '',
+    employeeId,
     active: !!row.active,
     statusText: row.status_text || '',
     companyName: row.company_name || ''
@@ -2504,10 +2525,9 @@ function employeeByCode(code) {
 }
 
 function captureAttendance(user, body) {
-  const method = ['Manual', 'QR', 'ID card', 'Web'].includes(body.method) ? body.method : '';
-  if (!method) fail(400, 'Choose Manual, QR, or ID card');
+  const method = ['Manual', 'QR', 'ID card', 'Web'].includes(body.method) ? body.method : 'Manual';
   let employee;
-  if (user.role === 'employee') {
+  if (user.role === 'employee' || (!body.employeeId && user.employeeId)) {
     employee = mustEmployee(user.employeeId);
     if (method === 'QR' || method === 'ID card') {
       const scanned = employeeByCode(body.code);
@@ -2516,9 +2536,15 @@ function captureAttendance(user, body) {
     }
   } else {
     assertCompanyDesk(user);
-    if (method === 'Manual') {
-      if (!body.employeeId) fail(400, 'Choose the employee for a manual punch');
-      employee = mustEmployee(body.employeeId);
+    if (method === 'Manual' || method === 'Web') {
+      const targetId = body.employeeId || user.employeeId;
+      if (!targetId) {
+        const emp = database.prepare('SELECT id FROM employees WHERE lower(email) = lower(?)').get(user.email);
+        if (emp) employee = mustEmployee(emp.id);
+        else fail(400, 'Choose the employee for a manual punch');
+      } else {
+        employee = mustEmployee(targetId);
+      }
     } else {
       employee = employeeByCode(body.code);
       if (!employee) fail(404, method === 'QR' ? 'That QR code was not recognised' : 'That ID card was not recognised');
@@ -2565,8 +2591,50 @@ function captureAttendance(user, body) {
 }
 
 function punch(user, body) {
-  if (user.role !== 'employee') fail(403, 'Punch attendance from the employee desk');
-  return captureAttendance(user, { ...body, method: body.method || 'Web' });
+  if (user.role === 'employee' || user.employeeId) {
+    return captureAttendance(user, { ...body, method: body.method || 'Manual' });
+  }
+  if (body.employeeId) {
+    return captureAttendance(user, { ...body, method: body.method || 'Manual' });
+  }
+  const emp = database.prepare('SELECT id FROM employees WHERE lower(email) = lower(?)').get(user.email);
+  if (emp) {
+    return captureAttendance(user, { ...body, employeeId: emp.id, method: body.method || 'Manual' });
+  }
+  fail(403, 'Punch attendance requires an employee record or selecting an employee');
+}
+
+async function getEmployeeQr(user, employeeId) {
+  let employee;
+  if (user.role === 'employee') {
+    employee = mustEmployee(user.employeeId);
+  } else if (employeeId) {
+    employee = mustEmployee(employeeId);
+    assertEmployee(user, employee);
+  } else if (user.employeeId) {
+    employee = mustEmployee(user.employeeId);
+  } else {
+    const emp = database.prepare('SELECT id FROM employees WHERE lower(email) = lower(?)').get(user.email);
+    if (emp) employee = mustEmployee(emp.id);
+    else {
+      // Pick first employee in client company if client desk
+      if (user.clientId) {
+        const first = database.prepare('SELECT id FROM employees WHERE client_id = ? LIMIT 1').get(user.clientId);
+        if (first) employee = mustEmployee(first.id);
+      }
+      if (!employee) fail(404, 'No employee record found for QR code generation');
+    }
+  }
+  const code = employee.employeeCode;
+  const qrDataUrl = await QRCode.toDataURL(code, { width: 280, margin: 2 });
+  return {
+    employeeId: employee.id,
+    employeeCode: employee.employeeCode,
+    fullName: employee.fullName,
+    companyName: employee.companyName,
+    shiftName: employee.shiftName,
+    qrDataUrl
+  };
 }
 
 function updateAttendance(user, id, body) {
@@ -3207,27 +3275,168 @@ function addActivityFile(user, id, file, meta) {
 
 function channelsFor(user) {
   const channels = [
-    { id: 'desk', label: 'Operations desk' },
-    { id: 'activities', label: 'Activity requests' }
+    { id: 'desk', label: 'Operations desk', kind: 'group', icon: '⚡', description: 'Central operational dispatch & approvals' },
+    { id: 'activities', label: 'Activity requests', kind: 'group', icon: '📋', description: 'Background checks, store requisitions & broadcasts' }
   ];
-  if (user.role === 'admin') {
+  if (user.role === 'admin' || user.role === 'superadmin') {
     database.prepare('SELECT id, company_name FROM clients ORDER BY company_name').all().forEach((row) => {
-      channels.push({ id: `company:${row.id}`, label: row.company_name });
+      channels.push({ id: `company:${row.id}`, label: row.company_name, kind: 'company', icon: '🏢', description: `${row.company_name} corporate room` });
     });
-    channels.push({ id: 'posh', label: 'POSH thoughts' }, { id: 'queries', label: 'Query desk' });
+    channels.push(
+      { id: 'posh', label: 'POSH thoughts', kind: 'group', icon: '🛡️', description: 'Confidential prevention of sexual harassment desk' },
+      { id: 'queries', label: 'Query desk', kind: 'group', icon: '💬', description: 'General employee inquiries & helpdesk' }
+    );
   } else {
-    channels.splice(1, 0, { id: `company:${user.clientId}`, label: 'Company group' });
-    if (user.role === 'employee') channels.push({ id: 'posh', label: 'POSH thoughts' });
-    channels.push({ id: 'queries', label: 'Query desk' });
+    channels.splice(1, 0, { id: `company:${user.clientId}`, label: 'Company group', kind: 'company', icon: '🏢', description: 'Internal team announcements & updates' });
+    if (user.role === 'employee') {
+      channels.push({ id: 'posh', label: 'POSH thoughts', kind: 'group', icon: '🛡️', description: 'Confidential POSH grievance cell' });
+    }
+    channels.push({ id: 'queries', label: 'Query desk', kind: 'group', icon: '💬', description: 'Workplace query & escalation desk' });
   }
+
+  // Load existing Direct Message conversations for this user
+  try {
+    const dmRows = database.prepare(`
+      SELECT channel, MAX(created_at) as last_msg_at,
+             (SELECT body FROM messages m2 WHERE m2.channel = m1.channel ORDER BY m2.created_at DESC LIMIT 1) as last_body
+      FROM messages m1
+      WHERE channel LIKE 'dm:%'
+        AND (channel LIKE 'dm:' || ? || ':%' OR channel LIKE '%:' || ?)
+      GROUP BY channel
+      ORDER BY last_msg_at DESC
+    `).all(user.id, user.id);
+
+    dmRows.forEach((dm) => {
+      const parts = dm.channel.split(':');
+      const otherId = parts[1] === user.id ? parts[2] : parts[1];
+      const otherUser = database.prepare(`
+        SELECT u.id, u.name, u.role, u.title, u.status_text, e.department, e.role_title, c.company_name
+        FROM users u
+        LEFT JOIN employees e ON e.id = u.employee_id
+        LEFT JOIN clients c ON c.id = u.client_id
+        WHERE u.id = ?
+      `).get(otherId);
+
+      if (otherUser) {
+        channels.push({
+          id: dm.channel,
+          label: otherUser.name,
+          kind: 'dm',
+          icon: '👤',
+          role: otherUser.role,
+          title: otherUser.title || otherUser.role_title || otherUser.role,
+          department: otherUser.department || (otherUser.company_name ? `${otherUser.company_name}` : 'Direct Contact'),
+          statusText: otherUser.status_text || 'Available on Runwork One',
+          lastMsg: dm.last_body || '',
+          lastTime: dm.last_msg_at,
+          otherUserId: otherUser.id
+        });
+      }
+    });
+  } catch (_) {}
+
   return channels;
 }
 
+function searchUsers(user, query = '') {
+  const q = String(query || '').trim().toLowerCase();
+  let sql = `
+    SELECT u.id, u.name, u.email, u.phone, u.role, u.title, u.status_text, u.client_id, u.employee_id,
+           e.department, e.role_title, c.company_name
+    FROM users u
+    LEFT JOIN employees e ON e.id = u.employee_id
+    LEFT JOIN clients c ON c.id = u.client_id
+    WHERE u.active = 1 AND u.id != ?
+  `;
+  const params = [user.id];
+
+  // Role visibility permissions
+  if (user.role === 'client' || user.role === 'employee') {
+    sql += ` AND (u.client_id = ? OR u.role IN ('admin', 'superadmin', 'hradmin'))`;
+    params.push(user.clientId);
+  }
+
+  if (q) {
+    sql += ` AND (
+      LOWER(u.name) LIKE ? OR
+      LOWER(u.email) LIKE ? OR
+      LOWER(COALESCE(u.title, '')) LIKE ? OR
+      LOWER(COALESCE(e.department, '')) LIKE ? OR
+      LOWER(COALESCE(e.role_title, '')) LIKE ? OR
+      LOWER(COALESCE(c.company_name, '')) LIKE ?
+    )`;
+    const wildcard = `%${q}%`;
+    params.push(wildcard, wildcard, wildcard, wildcard, wildcard, wildcard);
+  }
+
+  sql += ` ORDER BY u.name ASC LIMIT 50`;
+  const rows = database.prepare(sql).all(...params);
+
+  return rows.map((row) => {
+    let roleLabel = 'Team Member';
+    if (row.role === 'superadmin') roleLabel = 'Super Admin';
+    else if (row.role === 'admin') roleLabel = 'Central Admin Desk';
+    else if (row.role === 'hradmin') roleLabel = 'HR Operations';
+    else if (row.role === 'client') roleLabel = 'Client Admin';
+    else if (row.role === 'employee') roleLabel = row.role_title || 'Colleague';
+
+    const dmChannel = `dm:${[user.id, row.id].sort().join(':')}`;
+
+    return {
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      phone: row.phone || '',
+      role: row.role,
+      roleLabel,
+      title: row.title || roleLabel,
+      department: row.department || (row.company_name ? `${row.company_name} Desk` : 'Operations'),
+      companyName: row.company_name || 'S1 HR Network',
+      statusText: row.status_text || 'Available on Runwork One',
+      dmChannel,
+      isOnline: true
+    };
+  });
+}
+
+function generateContextualReply(recipient, text, sender) {
+  const lower = String(text || '').toLowerCase();
+  const firstName = (sender.name || 'Team member').split(' ')[0];
+
+  if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey') || lower.includes('good morning') || lower.includes('good afternoon')) {
+    return `Hello ${firstName}! ${recipient.name} here (${recipient.title || recipient.role}). How can I assist you on the workspace today?`;
+  }
+  if (lower.includes('leave') || lower.includes('holiday') || lower.includes('vacation') || lower.includes('off')) {
+    return `Hi ${firstName}, I have noted your leave enquiry. The attendance coverage is mapped on the desk and the approval chain will update your status shortly.`;
+  }
+  if (lower.includes('shift') || lower.includes('timing') || lower.includes('swap') || lower.includes('roster')) {
+    return `Got it, ${firstName}. Shift update received. Please remember to clock your geo-verified punch marking when reporting on-site.`;
+  }
+  if (lower.includes('salary') || lower.includes('payslip') || lower.includes('pay') || lower.includes('deduction') || lower.includes('bonus')) {
+    return `Understood, ${firstName}. The monthly payroll reconciliation is logged. Your detailed payslip breakdown is ready for download in your vault.`;
+  }
+  if (lower.includes('doc') || lower.includes('vault') || lower.includes('kyc') || lower.includes('id') || lower.includes('aadhaar')) {
+    return `Noted. All records uploaded to your Digital Employee Vault are securely archived with 100% compliance audit check.`;
+  }
+  if (lower.includes('thank') || lower.includes('ok') || lower.includes('okay') || lower.includes('sure') || lower.includes('got it')) {
+    return `Glad to help, ${firstName}! Reach out anytime if you need anything else on Runwork.`;
+  }
+  return `Hi ${firstName}, received your message regarding "${clip(text, 50)}". I am reviewing this on the desk now.`;
+}
+
 function listMessages(user, channel) {
-  if (!channelsFor(user).some((item) => item.id === channel)) fail(403, 'That messenger group is not open on this desk');
+  if (channel && channel.startsWith('dm:')) {
+    const parts = channel.split(':');
+    if (parts.length !== 3 || (parts[1] !== user.id && parts[2] !== user.id)) {
+      fail(403, 'That direct message conversation is not accessible');
+    }
+  } else if (!channelsFor(user).some((item) => item.id === channel)) {
+    fail(403, 'That messenger group is not open on this desk');
+  }
+
   let sql = 'SELECT * FROM messages WHERE channel = ?';
   const params = [channel];
-  if (user.role !== 'admin' && channel !== 'desk' && !channel.startsWith('company:')) {
+  if (!channel.startsWith('dm:') && user.role !== 'admin' && user.role !== 'superadmin' && channel !== 'desk' && !channel.startsWith('company:')) {
     sql += ' AND (client_id IS NULL OR client_id = ?)';
     params.push(user.clientId);
   }
@@ -3242,9 +3451,46 @@ function sendMessage(user, body) {
   const channel = clip(body.channel, 80);
   const text = clip(body.body, 2000);
   if (!text) fail(400, 'Write a message');
-  if (!channelsFor(user).some((item) => item.id === channel)) fail(403, 'That messenger group is not open on this desk');
+
+  let isDm = false;
+  let recipientId = null;
+  if (channel && channel.startsWith('dm:')) {
+    const parts = channel.split(':');
+    if (parts.length !== 3 || (parts[1] !== user.id && parts[2] !== user.id)) {
+      fail(403, 'That direct message conversation is not accessible');
+    }
+    isDm = true;
+    recipientId = parts[1] === user.id ? parts[2] : parts[1];
+  } else if (!channelsFor(user).some((item) => item.id === channel)) {
+    fail(403, 'That messenger group is not open on this desk');
+  }
+
   const clientId = channel.startsWith('company:') ? channel.split(':')[1] : (user.clientId || null);
-  return insertMessage({ channel, clientId, senderId: user.id, senderName: user.name, senderRole: user.role, body: text });
+  const msg = insertMessage({ channel, clientId, senderId: user.id, senderName: user.name, senderRole: user.role, body: text });
+
+  // Intelligent real-time communication response in DMs if autoReply is enabled
+  if (isDm && recipientId && body.autoReply !== false) {
+    const recipient = database.prepare('SELECT id, name, role, title, status_text FROM users WHERE id = ?').get(recipientId);
+    if (recipient) {
+      setTimeout(() => {
+        try {
+          const replyText = generateContextualReply(recipient, text, user);
+          if (replyText) {
+            insertMessage({
+              channel,
+              clientId,
+              senderId: recipient.id,
+              senderName: recipient.name,
+              senderRole: recipient.role,
+              body: replyText
+            });
+          }
+        } catch (_) {}
+      }, 1000);
+    }
+  }
+
+  return msg;
 }
 
 function updateProfile(user, body) {
@@ -5793,7 +6039,7 @@ module.exports = {
   listEmployees, getEmployee, createEmployee, updateEmployee, setPayroll, addWarning, setEmployeeLogin,
   listAttendance, punch, captureAttendance, updateAttendance, listLeaves, createLeave, setLeaveStatus, listSwaps, createSwap, setSwapStatus,
   listReimbursements, createReimbursement, setReimbursementStatus, listExpensePolicies, saveExpensePolicy, listClaimEvents, listApplicants, createApplicant, setApplicantStage, setApplicantResume, setOffer, listRequisitions, createRequisition, setRequisition, employee360,
-  listActivities, createActivity, updateActivity, addActivityFile, channelsFor, listMessages, sendMessage, updateProfile,
+  listActivities, createActivity, updateActivity, addActivityFile, channelsFor, listMessages, sendMessage, updateProfile, searchUsers, onMessage,
   listTickets, createTicket, replyTicket, listPosh, createPosh, setPoshStatus, listLeads, createLead, updateLead,
   listTasks, createTask, updateTask, setTaskApproval, listGoals, saveGoal, setGoalStatus, listKras, saveKra, listReviews, saveReview, setReviewStatus, performanceAnalytics, listTemplates, saveTemplate, search, exportRows, documentModel,
   listLifecycle, addLifecycle, setEmployeeDocument, updateWorkflow, saveExit, orgStructure, addDesignation,
@@ -5807,5 +6053,5 @@ module.exports = {
   listAssetEvents, moveAsset, listAssetPeople, listAssetRequests, createAssetRequest, setAssetRequest,
   listLocations, saveLocation, listLocationRules, saveLocationRule, assignEmployeeLocation, listLocationRequests, createLocationRequest, setLocationRequest, locationReport,
   listCustomFields, saveCustomField, listCustomForms, saveCustomForm, setCustomData, listDocumentRequests, createDocumentRequest, setDocumentRequest, templateTokens,
-  markNotificationsRead, acceptUpload
+  markNotificationsRead, acceptUpload, getEmployeeQr
 };

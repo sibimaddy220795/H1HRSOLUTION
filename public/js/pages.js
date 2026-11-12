@@ -21,15 +21,28 @@ function payFields(method, reference) {
   return `${UI.field('paymentMethod', 'Payment method', method || 'UPI', choices)}${UI.field('paymentReference', 'Payment reference', reference || '')}`;
 }
 
-function captureBox(self) {
-  return `<div class="capture" data-self="${self ? 'yes' : 'no'}">
-    <div class="page-actions">
-      <button class="btn primary" type="button" data-cap="in" data-method="Manual">Punch in</button>
-      <button class="btn" type="button" data-cap="out" data-method="Manual">Punch out</button>
-      <button class="btn" type="button" data-cap="qr" data-method="QR">Scan QR</button>
+function captureBox(self, punch) {
+  const punchedIn = punch && punch.inTime && !punch.outTime;
+  const punchedOut = punch && punch.outTime;
+  const statusClass = punchedIn ? 'punched-in' : punchedOut ? 'punched-out' : '';
+  const statusText = punchedIn ? '● On duty' : punchedOut ? '✓ Done for today' : '○ Not punched';
+  const inBtn = `<button class="att-punch-btn punch-in" type="button" data-cap="in" data-method="Manual" ${punchedIn || punchedOut ? 'disabled' : ''}>⬆ Punch In</button>`;
+  const outBtn = `<button class="att-punch-btn punch-out" type="button" data-cap="out" data-method="Manual" ${!punchedIn || punchedOut ? 'disabled' : ''}>⬇ Punch Out</button>`;
+  const qrBtn = `<button class="att-punch-btn qr-btn" type="button" data-cap="qr" data-method="QR">📱 Scan QR</button>`;
+  if (self) {
+    return `<div class="capture" data-self="yes">
+      <div class="att-punch-actions">${inBtn}${outBtn}${qrBtn}</div>
+      <label class="field" style="margin-top:10px">ID card scan<input data-id-scan placeholder="Click here, then scan the ID card barcode" autocomplete="off"/></label>
+    </div>`;
+  }
+  return `<div class="capture" data-self="no">
+    <div class="att-punch-actions" style="flex-direction:row;gap:10px;flex-wrap:wrap;">
+      <button class="btn primary" type="button" data-cap="in" data-method="Manual">⬆ Punch In</button>
+      <button class="btn" type="button" data-cap="out" data-method="Manual">⬇ Punch Out</button>
+      <button class="btn" type="button" data-cap="qr" data-method="QR">📱 Scan QR</button>
     </div>
-    <label class="field">ID card scan<input data-id-scan placeholder="Click here, then scan the ID card" autocomplete="off"/></label>
-    <p class="muted">Manual uses the punch in and punch out buttons. A QR or ID card scan punches in, then punches out on the next scan.</p>
+    <label class="field" style="margin-top:10px">ID card scan<input data-id-scan placeholder="Click here, then scan the ID card barcode" autocomplete="off"/></label>
+    <p class="muted" style="margin-top:8px">Manual punch uses the buttons above. QR and ID card scan auto-detect punch in or punch out.</p>
   </div>`;
 }
 
@@ -84,19 +97,51 @@ function bindCapture(root, people) {
   }
 }
 
-function openQrScan() {
+function showMyQr(employeeId) {
+  const query = employeeId ? `?employeeId=${encodeURIComponent(employeeId)}` : '';
+  UI.api('/api/attendance/my-qr' + query).then((res) => {
+    const data = res.data;
+    UI.openModal({
+      title: 'Attendance QR Code',
+      html: `
+        <div style="text-align:center;padding:12px 16px;">
+          <img src="${data.qrDataUrl}" alt="QR Code" style="width:230px;height:230px;margin:0 auto 12px;border:1px solid var(--line);border-radius:14px;display:block;box-shadow:0 4px 16px rgba(0,0,0,0.06);" />
+          <h3 style="margin:4px 0;font-size:18px;">${UI.esc(data.fullName)}</h3>
+          <p class="muted" style="margin:3px 0;font-size:13.5px;"><strong>${UI.esc(data.employeeCode)}</strong> · ${UI.esc(data.companyName)}</p>
+          <p style="margin:8px 0 0;font-size:12px;color:var(--muted);background:rgba(0,0,0,0.03);padding:6px 12px;border-radius:8px;">Scan this QR code using a mobile device camera or barcode scanner to mark attendance automatically.</p>
+        </div>`,
+      submitLabel: 'Close'
+    });
+  }).catch((err) => {
+    UI.toast(err.message || 'Could not load QR code', 'bad');
+  });
+}
+
+function openQrScan(self) {
   let stream;
   const stop = () => { if (stream) stream.getTracks().forEach((track) => track.stop()); };
   UI.openModal({
-    title: 'Scan the ID card QR',
-    html: `<video id="qr-video" class="scan-video" autoplay playsinline muted></video><p class="muted" id="qr-status">Point the camera at the QR code.</p>${UI.field('code', 'Or paste the QR text', '')}`,
-    submitLabel: 'Use pasted code',
+    title: 'Scan QR Code for Attendance',
+    html: `
+      <div style="margin-bottom:12px">
+        <video id="qr-video" class="scan-video" autoplay playsinline muted style="width:100%;max-height:240px;border-radius:12px;background:#111;"></video>
+        <p class="muted" id="qr-status" style="margin:6px 0 0;font-size:12.5px;">Point your camera at an employee QR code or ID card.</p>
+      </div>
+      ${UI.field('code', 'Or enter / paste employee code (e.g. EMP-2026-0001)', '')}
+      <div style="margin-top:10px;display:flex;gap:8px;">
+        <button class="btn ghost small" type="button" id="modal-my-qr-btn">🪪 Show My QR Code</button>
+      </div>`,
+    submitLabel: 'Confirm Punch',
     onReady(form) {
       form.querySelectorAll('[data-close]').forEach((node) => node.addEventListener('click', stop));
       const video = form.querySelector('#qr-video');
       const status = form.querySelector('#qr-status');
+      const myQrBtn = form.querySelector('#modal-my-qr-btn');
+      if (myQrBtn) myQrBtn.onclick = () => { stop(); showMyQr(); };
+
       if (!navigator.mediaDevices || !window.BarcodeDetector) {
-        status.textContent = 'This browser has no QR camera. Paste the code from the ID card.';
+        status.textContent = 'Camera scanner not supported in this browser. Enter the employee code below:';
+        if (video) video.style.display = 'none';
         return;
       }
       const detector = new BarcodeDetector({ formats: ['qr_code'] });
@@ -110,14 +155,18 @@ function openQrScan() {
             if (codes[0] && codes[0].rawValue) {
               stop();
               form.code.value = codes[0].rawValue;
-              status.textContent = 'QR read. Confirm to punch.';
+              status.textContent = 'QR recognized! Confirming punch...';
+              await sendCapture({ method: 'QR', code: codes[0].rawValue });
               return;
             }
-          } catch (_) { /* keep watching */ }
+          } catch (_) {}
           requestAnimationFrame(watch);
         };
         video.onloadedmetadata = () => watch();
-      }).catch(() => { status.textContent = 'Camera was not shared. Paste the QR text instead.'; });
+      }).catch(() => {
+        status.textContent = 'Camera access denied or unavailable. Enter employee code below:';
+        if (video) video.style.display = 'none';
+      });
     },
     onSubmit: async (data) => {
       stop();
@@ -179,14 +228,15 @@ const Pages = {
     const data = S1.boot.dashboard;
     const slides = S1.boot.advertisements || [];
     const punch = data.punch;
-    const punchBlock = S1.user.role === 'employee' ? `
+    const canPunch = S1.user.role === 'employee' || !!S1.user.employeeId;
+    const punchBlock = canPunch ? `
       <article class="card punch-card"><div>
         <p class="kicker">Attendance</p>
         <div class="clock" id="live-clock"></div>
         <p>${UI.esc(S1.user.companyName)} · ${punch ? UI.badge(punch.status) : UI.badge('Not punched')}</p>
         <p class="muted">${punch && punch.inTime ? `In ${UI.clock(punch.inTime)}` : 'In time is still open.'} ${punch && punch.outTime ? `· Out ${UI.clock(punch.outTime)}` : ''}</p>
         <p class="muted">${punch ? UI.esc(punch.locationNote) : 'Punch in and punch out are manual. A device can also scan the ID card QR or the employee ID.'}</p>
-        ${captureBox(true)}
+        ${captureBox(true, punch)}
       </div><div>
         <h3>Today’s flag</h3>
         <p>${punch ? `<span class="flag ${punch.flag}"></span>${UI.esc(punch.flag === 'red' ? 'Red flag' : 'Green flag')}` : 'Waiting for the first punch.'}</p>
@@ -946,9 +996,15 @@ const Pages = {
   },
 
   async attendance() {
-    const desk = S1.user.role !== 'employee';
-    const tab = S1.memory.attTab || 'register';
-    if (!desk) {
+    const isEmp = S1.user.role === 'employee';
+    const isAdmin = S1.user.role === 'admin';
+    const isClient = S1.user.role === 'client';
+    const tab = S1.memory.attTab || (isEmp ? 'punch' : 'register');
+
+    /* ═════════════════════════════════════════════════════════════════
+       EMPLOYEE DESK ATTENDANCE
+    ═════════════════════════════════════════════════════════════════ */
+    if (isEmp) {
       const month = S1.memory.attMonth || new Date().toISOString().slice(0, 7);
       const [res, holidays, sheet, roster, rules, policies, board] = await Promise.all([
         load('/api/attendance'), load('/api/holidays'), load(`/api/attendance/timesheet?month=${month}`),
@@ -957,140 +1013,654 @@ const Pages = {
       if (!res || !holidays || !sheet || !roster || !rules || !policies || !board) return;
       const rule = rules.data[0];
       const mine = (board.data && board.data[0]) || { types: [] };
-      const root = mount(`${head('Attendance and leave', 'Punch in and punch out yourself, or scan your QR and ID card.')}
-        ${captureBox(true)}
-        ${rule ? `<article class="card" style="margin:12px 0"><h3>Late, early, and overtime</h3><p>Late grace ${rule.lateGrace} min · early-out grace ${rule.earlyGrace} min · overtime starts ${rule.otAfter} min after shift end.</p><p class="muted">Modes: ${(rule.modes || []).map((mode) => UI.esc(mode)).join(', ')}.</p></article>` : ''}
-        <article class="card" style="margin-bottom:12px"><h3>Timesheet · ${UI.esc(sheet.data.month)}</h3><p>${sheet.data.totals.hours} hours · ${sheet.data.totals.otHours} OT hours · ${sheet.data.totals.late} late · ${sheet.data.totals.early} early</p></article>
-        <article class="card" style="margin-bottom:12px"><h3>My punches</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>Shift</th><th>In</th><th>Out</th><th>Mode</th><th>Flag</th><th class="num">OT</th></tr></thead><tbody>
-          ${res.data.map((row) => `<tr><td>${UI.esc(row.workDate)}</td><td>${UI.esc(row.shiftName)}</td><td>${UI.clock(row.inTime)}</td><td>${UI.clock(row.outTime)}</td><td>${UI.esc(row.mode)}</td><td>${UI.badge(row.status)}</td><td class="num">${row.otHours || '—'}</td></tr>`).join('') || '<tr><td colspan="7">No punches yet.</td></tr>'}
-        </tbody></table></div></article>
-        <article class="card" style="margin-bottom:12px"><h3>Roster</h3>${roster.data.map((row) => `<div class="flag-row"><span>${UI.esc(row.workDate)} · ${UI.esc(row.shiftName)}</span><span class="muted">${UI.esc(row.start)}–${UI.esc(row.end)}</span></div>`).join('') || '<p class="muted">No roster lines this month.</p>'}</article>
-        <article class="card" style="margin-bottom:12px"><h3>Leave balance and accrual</h3><div class="table-wrap"><table><thead><tr><th>Type</th><th>Quota</th><th>Monthly accrual</th><th>Accrued</th><th>Used</th><th>Balance</th></tr></thead><tbody>
-          ${mine.types.map((type) => `<tr><td>${UI.esc(type.leaveType)}</td><td>${type.yearlyQuota}</td><td>${type.monthlyAccrual}</td><td>${type.accrued}</td><td>${type.used}</td><td>${type.balance}</td></tr>`).join('') || policies.data.map((row) => `<tr><td>${UI.esc(row.leaveType)}</td><td>${row.yearlyQuota}</td><td>${row.monthlyAccrual}</td><td colspan="3">${row.paid ? 'Paid' : 'Unpaid'}</td></tr>`).join('')}
-        </tbody></table></div></article>
-        <article class="card"><h3>Holiday calendar</h3>${holidays.data.map((day) => `<div class="flag-row"><span>${UI.esc(day.date)} · ${UI.esc(day.name)}</span><span class="muted">${UI.esc(day.companyName)}</span></div>`).join('') || '<p class="muted">No holidays on this calendar.</p>'}</article>`);
-      bindCapture(root);
+      const todayDate = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' }).slice(0, 10);
+      const punch = res.data.find((r) => r.workDate === todayDate);
+      const punchedIn = punch && punch.inTime && !punch.outTime;
+      const punchedOut = punch && punch.outTime;
+
+      const empTabs = [
+        ['punch', '⏱ Attendance'],
+        ['history', '📋 My Record'],
+        ['timesheet', '📊 Timesheet'],
+        ['leave', '🌿 Leave & Holidays']
+      ].map(([t, label]) =>
+        `<button class="att-tab-btn ${tab === t ? 'on' : ''}" type="button" data-att-tab="${t}">${label}</button>`
+      ).join('');
+
+      const root = mount(`${head('My Attendance', 'Punch in/out manually or scan your QR code. View live duty status and timesheet.')}
+        <div class="att-tabs-nav">${empTabs}</div>
+        <div id="att-body"></div>`);
+
+      root.querySelectorAll('[data-att-tab]').forEach((btn) => {
+        btn.onclick = () => { S1.memory.attTab = btn.dataset.attTab; Pages.attendance(); };
+      });
+      const body = root.querySelector('#att-body');
+
+      if (tab === 'punch') {
+        const statusClass = punchedIn ? 'punched-in' : (punchedOut ? 'punched-out' : '');
+        const statusText = punchedIn ? '● On duty' : (punchedOut ? '✓ Done for today' : '○ Not punched yet');
+
+        body.innerHTML = `
+          <div class="att-hero">
+            <div>
+              <div class="att-date" id="att-date-live"></div>
+              <div class="att-clock" id="att-clock-live"></div>
+              <div class="att-shift">${UI.esc(S1.user.companyName)} · ${punch ? UI.esc(punch.shiftName) : 'General Shift'}</div>
+              <div class="att-status">
+                <span class="att-status-pill ${statusClass}">${statusText}</span>
+              </div>
+              ${punch && punch.inTime ? `<div class="att-time-row" style="margin-top:8px;">Punched in at: <strong>${UI.clock(punch.inTime)}</strong>${punch.outTime ? ` · Punched out at: <strong>${UI.clock(punch.outTime)}</strong>` : ''}</div>` : ''}
+              ${punch && punch.mode ? `<div class="att-time-row">Punch mode: <strong>${UI.esc(punch.mode)}</strong></div>` : ''}
+              ${punch && punch.penalty ? `<div class="att-time-row" style="color:#fca5a5;">Penalty: ${UI.inr(punch.penalty)} · ${UI.esc(punch.penaltyRemarks)}</div>` : ''}
+            </div>
+            <div class="att-punch-actions">
+              <button class="att-punch-btn punch-in" id="att-punch-in-btn" type="button" ${punchedIn || punchedOut ? 'disabled' : ''}>⬆ Punch In</button>
+              <button class="att-punch-btn punch-out" id="att-punch-out-btn" type="button" ${!punchedIn || punchedOut ? 'disabled' : ''}>⬇ Punch Out</button>
+              <button class="att-punch-btn qr-btn" id="att-qr-scan-btn" type="button">📱 Scan QR</button>
+              <button class="att-punch-btn qr-btn" id="att-my-qr-btn" type="button">🪪 My QR Code</button>
+            </div>
+          </div>
+
+          <div class="today-status-bar">
+            <div class="today-stat">
+              <div class="today-stat-icon">⏰</div>
+              <div><div class="today-stat-label">In time</div>
+              <div class="today-stat-value">${punch && punch.inTime ? UI.clock(punch.inTime) : '—'}</div></div>
+            </div>
+            <div class="today-stat">
+              <div class="today-stat-icon">🏁</div>
+              <div><div class="today-stat-label">Out time</div>
+              <div class="today-stat-value">${punch && punch.outTime ? UI.clock(punch.outTime) : '—'}</div></div>
+            </div>
+            <div class="today-stat">
+              <div class="today-stat-icon">📍</div>
+              <div><div class="today-stat-label">Attendance status</div>
+              <div class="today-stat-value">${punch ? punch.status : 'Not in'}</div></div>
+            </div>
+          </div>
+
+          <article class="card" style="margin-bottom:14px">
+            <h3 style="margin:0 0 10px;font-size:16px;">Quick ID Card / Barcode Punch</h3>
+            <label class="field"><input data-id-scan placeholder="Click here and scan or type your employee code (e.g. EMP-2026-0001)" autocomplete="off" style="font-size:14px"/></label>
+            <p class="muted" style="margin-top:8px;font-size:12px;">Type your employee code or scan your ID barcode and press Enter to instantly punch in or out.</p>
+          </article>
+
+          ${rule ? `<article class="card"><h3>Shift & Overtime Rules</h3><p>Late grace <strong>${rule.lateGrace} minutes</strong> · Early-out grace <strong>${rule.earlyGrace} minutes</strong> · Overtime starts <strong>${rule.otAfter} minutes</strong> after shift end.</p><p class="muted">Supported check-in modes: ${(rule.modes || []).map((m) => UI.esc(m)).join(', ')}.</p></article>` : ''}`;
+
+        // Live clock
+        const clockEl = body.querySelector('#att-clock-live');
+        const dateEl = body.querySelector('#att-date-live');
+        const tick = () => {
+          const now = new Date();
+          clockEl.textContent = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          dateEl.textContent = now.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        };
+        tick();
+        const timer = setInterval(tick, 1000);
+        S1.addStop(() => clearInterval(timer));
+
+        // Manual Punch In
+        body.querySelector('#att-punch-in-btn').onclick = async (e) => {
+          e.target.disabled = true;
+          try {
+            let place = {};
+            try { place = await UI.locate() || {}; } catch (_) {}
+            await UI.api('/api/attendance/punch', { method: 'POST', body: { action: 'in', method: 'Manual', ...place } });
+            UI.toast('Punched in successfully!');
+            S1.go();
+          } catch (err) { UI.toast(err.message, 'bad'); e.target.disabled = false; }
+        };
+
+        // Manual Punch Out
+        body.querySelector('#att-punch-out-btn').onclick = async (e) => {
+          e.target.disabled = true;
+          try {
+            let place = {};
+            try { place = await UI.locate() || {}; } catch (_) {}
+            await UI.api('/api/attendance/punch', { method: 'POST', body: { action: 'out', method: 'Manual', ...place } });
+            UI.toast('Punched out successfully!');
+            S1.go();
+          } catch (err) { UI.toast(err.message, 'bad'); e.target.disabled = false; }
+        };
+
+        // Scan QR
+        body.querySelector('#att-qr-scan-btn').onclick = () => openQrScan(true);
+
+        // My QR
+        body.querySelector('#att-my-qr-btn').onclick = () => showMyQr();
+
+        // Barcode input
+        const idScan = body.querySelector('[data-id-scan]');
+        if (idScan) {
+          idScan.addEventListener('keydown', async (event) => {
+            if (event.key !== 'Enter') return;
+            event.preventDefault();
+            const code = idScan.value.trim();
+            if (!code) return;
+            idScan.disabled = true;
+            try {
+              await sendCapture({ method: 'ID card', code });
+            } catch (err) { UI.toast(err.message, 'bad'); idScan.disabled = false; }
+          });
+        }
+      }
+
+      if (tab === 'history') {
+        const calMonth = S1.memory.attMonth || new Date().toISOString().slice(0, 7);
+        const dateMap = {};
+        res.data.forEach((r) => { dateMap[r.workDate] = r; });
+        holidays.data.forEach((h) => { if (!dateMap[h.date]) dateMap[h.date] = { holiday: h.name }; });
+        const firstDay = new Date(calMonth + '-01');
+        const daysInMonth = new Date(firstDay.getFullYear(), firstDay.getMonth() + 1, 0).getDate();
+        const startDow = firstDay.getDay();
+        const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        let calHtml = `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px">
+          ${DOW.map((d) => `<div style="text-align:center;font-size:11px;font-weight:700;color:var(--muted);padding:4px">${d}</div>`).join('')}
+          ${Array(startDow).fill('<div></div>').join('')}`;
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dateStr = calMonth + '-' + String(d).padStart(2, '0');
+          const row = dateMap[dateStr];
+          const isToday = dateStr === todayDate;
+          const dow = new Date(dateStr).getDay();
+          const isWeekend = dow === 0 || dow === 6;
+          let cls = 'att-cal-day'; let dot = '';
+          if (row && row.holiday) { cls += ' holiday'; dot = '<div style="font-size:10px;color:#7c3aed">🎉</div>'; }
+          else if (isWeekend) cls += ' weekend';
+          else if (row && row.status === 'Present') { cls += ' present'; dot = '<div class="att-cal-dot present"></div>'; }
+          else if (row && row.status === 'Late') { cls += ' late'; dot = '<div class="att-cal-dot late"></div>'; }
+          else if (row && row.status === 'Absent') { cls += ' absent'; dot = '<div class="att-cal-dot absent"></div>'; }
+          if (isToday) cls += ' today';
+          calHtml += `<div class="${cls}" title="${row ? (row.holiday || (row.status + ' ' + (UI.clock(row.inTime) || ''))) : ''}">
+            <div class="cal-date">${d}</div>${dot}</div>`;
+        }
+        calHtml += '</div>';
+
+        body.innerHTML = `
+          <form class="att-filter-bar" id="cal-month-form">
+            <input type="month" name="month" value="${UI.esc(calMonth)}" />
+            <button class="att-search-btn" type="submit">Show Month</button>
+          </form>
+          <article class="card" style="margin-bottom:14px">
+            <h3 style="margin:0 0 12px;font-size:16px;">Monthly Attendance Calendar · ${UI.esc(calMonth)}</h3>
+            ${calHtml}
+            <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:12px;padding-top:8px;border-top:1px solid var(--line);">
+              <span><span class="att-cal-dot present" style="display:inline-block;vertical-align:middle;margin-right:4px"></span> Present</span>
+              <span><span class="att-cal-dot late" style="display:inline-block;vertical-align:middle;margin-right:4px"></span> Late</span>
+              <span><span class="att-cal-dot absent" style="display:inline-block;vertical-align:middle;margin-right:4px"></span> Absent</span>
+              <span>🎉 Holiday</span>
+            </div>
+          </article>
+          <div class="att-table-wrap">
+            <div class="att-table-head"><h3>Attendance Log</h3><span class="muted" style="font-size:12px;">${res.data.length} records</span></div>
+            <div class="table-wrap"><table><thead><tr><th>Date</th><th>Shift</th><th>In</th><th>Out</th><th>Mode</th><th>Status</th><th class="num">OT Hours</th></tr></thead><tbody>
+            ${res.data.map((row) => `<tr>
+              <td>${UI.esc(row.workDate)}</td><td>${UI.esc(row.shiftName)}</td>
+              <td>${UI.clock(row.inTime)}</td><td>${UI.clock(row.outTime)}</td>
+              <td><span class="att-mode-icon ${(row.mode || '').toLowerCase()}">${UI.esc(row.mode)}</span></td>
+              <td>${UI.badge(row.status)}</td>
+              <td class="num">${row.otHours || '—'}</td>
+            </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No punch records yet.</td></tr>'}
+            </tbody></table></div>
+          </div>`;
+
+        body.querySelector('#cal-month-form').onsubmit = (e) => {
+          e.preventDefault();
+          S1.memory.attMonth = new FormData(e.target).get('month');
+          Pages.attendance();
+        };
+      }
+
+      if (tab === 'timesheet') {
+        const calMonth = S1.memory.attMonth || new Date().toISOString().slice(0, 7);
+        const sheetRes = await load(`/api/attendance/timesheet?month=${calMonth}`);
+        if (!sheetRes) return;
+        const t = sheetRes.data.totals;
+        body.innerHTML = `
+          <form class="att-filter-bar" id="ts-month-form">
+            <input type="month" name="month" value="${UI.esc(calMonth)}" />
+            <button class="att-search-btn" type="submit">Show Timesheet</button>
+          </form>
+          <div class="att-stats-row">
+            <div class="att-stat-card"><div class="stat-label">Total hours</div><div class="stat-value">${t.hours}</div><div class="stat-sub">Logged work</div></div>
+            <div class="att-stat-card"><div class="stat-label">Overtime hours</div><div class="stat-value">${t.otHours}</div><div class="stat-sub">Extra hours</div></div>
+            <div class="att-stat-card"><div class="stat-label">Late arrivals</div><div class="stat-value" style="color:#f97316">${t.late}</div><div class="stat-sub">Past grace period</div></div>
+            <div class="att-stat-card"><div class="stat-label">Early departures</div><div class="stat-value" style="color:#ef4444">${t.early}</div><div class="stat-sub">Before shift end</div></div>
+          </div>
+          <div class="att-table-wrap">
+            <div class="att-table-head"><h3>Timesheet · ${UI.esc(sheetRes.data.month)}</h3></div>
+            <div class="table-wrap"><table><thead><tr><th>Date</th><th>Employee</th><th>In</th><th>Out</th><th>Hours</th><th>OT</th><th>Mode</th><th>Status</th></tr></thead><tbody>
+            ${sheetRes.data.rows.map((row) => `<tr>
+              <td>${UI.esc(row.workDate)}</td><td>${UI.esc(row.employeeName)}</td>
+              <td>${UI.clock(row.inTime)}</td><td>${UI.clock(row.outTime)}</td>
+              <td>${row.hours}</td><td>${row.otHours}</td>
+              <td>${UI.esc(row.mode)}</td><td>${UI.badge(row.status)}</td>
+            </tr>`).join('') || '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">No timesheet entries for this month.</td></tr>'}
+            </tbody></table></div>
+          </div>`;
+
+        body.querySelector('#ts-month-form').onsubmit = (e) => {
+          e.preventDefault();
+          S1.memory.attMonth = new FormData(e.target).get('month');
+          Pages.attendance();
+        };
+      }
+
+      if (tab === 'leave') {
+        body.innerHTML = `
+          <div class="att-stats-row">
+            ${mine.types.length ? mine.types.map((type) => `
+              <div class="att-stat-card">
+                <div class="stat-label">${UI.esc(type.leaveType)} Leave</div>
+                <div class="stat-value">${type.balance}</div>
+                <div class="stat-sub">Accrued ${type.accrued} · Used ${type.used}</div>
+              </div>`).join('') : policies.data.map((row) => `
+              <div class="att-stat-card">
+                <div class="stat-label">${UI.esc(row.leaveType)} Leave</div>
+                <div class="stat-value">${row.yearlyQuota}</div>
+                <div class="stat-sub">${row.paid ? 'Paid' : 'Unpaid'} quota</div>
+              </div>`).join('')}
+          </div>
+          <article class="card"><h3>Official Holiday Calendar</h3>
+            ${holidays.data.map((day) => `<div class="flag-row"><span>🎉 ${UI.esc(day.date)} · ${UI.esc(day.name)}</span><span class="muted">${UI.esc(day.companyName)}</span></div>`).join('') || '<p class="muted">No holidays listed.</p>'}
+          </article>`;
+      }
       return;
     }
-    const tabs = ['register', 'timesheet', 'roster', 'shifts', 'rules', 'leave', 'holidays'].map((item) => `<button class="tab ${tab === item ? 'on' : ''}" type="button" data-tab="${item}">${item}</button>`).join('');
-    const root = mount(`${head('Attendance and leave', 'Track punches, roster the week, apply late and overtime rules, and move leave through the company desk and then the administrator.')}<div class="tabs">${tabs}</div><div id="att-body"></div>`);
-    root.querySelectorAll('[data-tab]').forEach((button) => { button.onclick = () => { S1.memory.attTab = button.dataset.tab; Pages.attendance(); }; });
+
+    /* ═════════════════════════════════════════════════════════════════
+       ADMIN & HR DESK ATTENDANCE (Super Admin, Client Admin, HR Admin)
+    ═════════════════════════════════════════════════════════════════ */
+    const deskTabs = [
+      ['register', '📋 Register'],
+      ['today', '🟢 Today\'s Duty'],
+      ['timesheet', '📊 Timesheet'],
+      ['roster', '📅 Roster'],
+      ['shifts', '⏰ Shifts'],
+      ['rules', '⚙ Rules'],
+      ['leave', '🌿 Leave'],
+      ['holidays', '🎉 Holidays']
+    ];
+    const tabsHtml = deskTabs.map(([t, label]) =>
+      `<button class="att-tab-btn ${tab === t ? 'on' : ''}" type="button" data-att-tab="${t}">${label}</button>`
+    ).join('');
+
+    const subtitle = isAdmin
+      ? 'Manage attendance across all companies. Manual punch in/out, QR scanner, and live workforce duty logs.'
+      : 'Track attendance for your company staff, manual punch, QR code check-in, and duty status.';
+
+    const root = mount(`${head('Attendance & Duty Tracking', subtitle)}
+      <div class="att-tabs-nav">${tabsHtml}</div>
+      <div id="att-body"></div>`);
+
+    root.querySelectorAll('[data-att-tab]').forEach((btn) => {
+      btn.onclick = () => { S1.memory.attTab = btn.dataset.attTab; Pages.attendance(); };
+    });
     const body = root.querySelector('#att-body');
     const people = await load('/api/employees');
     if (!people) return;
-    const personOptions = people.data.map((person) => ({ value: person.id, label: person.fullName }));
+    const personOptions = people.data.map((p) => ({ value: p.id, label: `${p.fullName} (${p.employeeCode})` }));
+
     if (tab === 'register') {
-      const res = await load('/api/attendance');
+      const dateFilter = S1.memory.attDate || '';
+      const empFilter = S1.memory.attEmp || '';
+      const companyFilter = S1.memory.attCompany || '';
+      let url = '/api/attendance?';
+      const q = [];
+      if (dateFilter) q.push('date=' + encodeURIComponent(dateFilter));
+      if (empFilter) q.push('employeeId=' + encodeURIComponent(empFilter));
+      if (companyFilter && isAdmin) q.push('clientId=' + encodeURIComponent(companyFilter));
+      url += q.join('&');
+
+      const res = await load(url);
       if (!res) return;
-      body.innerHTML = `<article class="card" style="margin-bottom:12px"><h3>Device attendance</h3><p class="muted">Punch in and punch out manually, or use a device to scan the ID card QR or the employee ID.</p>${captureBox(false)}</article>
-        <div class="page-actions" style="margin-bottom:12px"><button class="btn" type="button" data-act="mark">Mark attendance</button><button class="btn ghost" type="button" data-act="xlsx">Excel</button></div>
-        <div class="table-wrap"><table><thead><tr><th>Date</th><th>Employee</th><th>Place</th><th>Shift</th><th>In</th><th>Out</th><th>Mode</th><th>Flag</th><th class="num">OT</th><th>Note</th><th></th></tr></thead><tbody>
-        ${res.data.map((row) => `<tr><td>${UI.esc(row.workDate)}</td><td>${UI.esc(row.employeeName)}</td><td>${UI.esc(row.locationName || row.branchName || '—')}</td><td>${UI.esc(row.shiftName)}</td><td>${UI.clock(row.inTime)}</td><td>${UI.clock(row.outTime)}</td><td>${UI.esc(row.mode)}</td><td>${UI.badge(row.status)}</td><td class="num">${row.otHours || '—'}</td><td>${UI.esc(row.penaltyRemarks || row.locationNote)}</td><td><button class="btn small" type="button" data-act="edit" data-id="${UI.esc(row.id)}" data-penalty="${row.penalty}" data-ot="${row.otAmount}" data-lop="${row.lopDays}" data-notes="${UI.esc(row.penaltyRemarks)}">Adjust</button></td></tr>`).join('') || '<tr><td colspan="11">No attendance yet.</td></tr>'}
-        </tbody></table></div>`;
+      const rows = res.data;
+      const presentCount = rows.filter((r) => r.status === 'Present').length;
+      const lateCount = rows.filter((r) => r.status === 'Late').length;
+      const otHoursTotal = rows.reduce((acc, r) => acc + (Number(r.otHours) || 0), 0);
+
+      body.innerHTML = `
+        <div class="att-stats-row">
+          <div class="att-stat-card"><div class="stat-label">Total records</div><div class="stat-value">${rows.length}</div><div class="stat-sub">Current filter</div></div>
+          <div class="att-stat-card"><div class="stat-label">Present (On time)</div><div class="stat-value" style="color:#15803d;">${presentCount}</div><div class="stat-sub">Normal punch</div></div>
+          <div class="att-stat-card"><div class="stat-label">Late arrivals</div><div class="stat-value" style="color:#c2410c;">${lateCount}</div><div class="stat-sub">Past grace time</div></div>
+          <div class="att-stat-card"><div class="stat-label">Overtime hours</div><div class="stat-value" style="color:#2563eb;">${Math.round(otHoursTotal * 10) / 10}</div><div class="stat-sub">Total OT</div></div>
+        </div>
+
+        <!-- HR & Admin Punch Station (Manual & QR for HR and Staff) -->
+        <article class="card" style="margin-bottom:14px;border:1.5px solid var(--accent);background:linear-gradient(to right, #fffcf8, #f8fcf9);">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+            <h3 style="margin:0;font-size:16px;">⏱ HR & Staff Attendance Station</h3>
+            <span class="muted" style="font-size:12.5px;">Punch in / out manually or with QR scan for HR or any staff</span>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <select id="hr-punch-emp-select" style="padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:white;font-size:13.5px;min-width:240px;">
+              ${S1.user.employeeId ? `<option value="${S1.user.employeeId}">Self: ${UI.esc(S1.user.name)}</option>` : ''}
+              ${personOptions.map((p) => `<option value="${UI.esc(p.value)}">${UI.esc(p.label)}</option>`).join('')}
+            </select>
+            <button class="att-punch-btn punch-in" id="hr-punch-in-btn" type="button" style="padding:9px 18px;min-width:auto;font-size:13.5px;">⬆ Punch In</button>
+            <button class="att-punch-btn punch-out" id="hr-punch-out-btn" type="button" style="padding:9px 18px;min-width:auto;font-size:13.5px;">⬇ Punch Out</button>
+            <button class="btn" id="hr-scan-qr-btn" type="button" style="padding:9px 16px;">📱 Scan Staff QR</button>
+            <button class="btn ghost" id="hr-view-qr-btn" type="button" style="padding:9px 16px;">🪪 View Staff QR</button>
+          </div>
+        </article>
+
+        <!-- Filter bar -->
+        <form class="att-filter-bar" id="att-filter-form">
+          <input type="date" name="date" value="${UI.esc(dateFilter)}" placeholder="Filter by date"/>
+          <select name="empId"><option value="">All employees</option>${personOptions.map((p) => `<option value="${UI.esc(p.value)}" ${empFilter === p.value ? 'selected' : ''}>${UI.esc(p.label)}</option>`).join('')}</select>
+          ${isAdmin ? `<select name="companyId"><option value="">All companies</option>${S1.ref.companies.map((c) => `<option value="${UI.esc(c.id)}" ${companyFilter === c.id ? 'selected' : ''}>${UI.esc(c.name)}</option>`).join('')}</select>` : ''}
+          <button class="att-search-btn" type="submit">Filter</button>
+          <button class="btn ghost" type="button" id="att-clear-filter">Reset</button>
+          <button class="btn primary" type="button" data-act="mark">+ Mark Attendance</button>
+          <button class="btn ghost" type="button" data-act="xlsx">Excel</button>
+        </form>
+
+        <div class="att-table-wrap">
+          <div class="att-table-head">
+            <h3>Attendance Register</h3>
+            <span class="muted" style="font-size:13px;">Showing ${rows.length} entries</span>
+          </div>
+          <div class="table-wrap"><table><thead><tr>
+            <th>Date</th>
+            <th>Employee</th>
+            ${isAdmin ? '<th>Company</th>' : ''}
+            <th>Shift</th>
+            <th>In Time</th>
+            <th>Out Time</th>
+            <th>Mode</th>
+            <th>Status</th>
+            <th class="num">OT Hours</th>
+            <th>Notes / Penalty</th>
+            <th>Action</th>
+          </tr></thead><tbody>
+          ${rows.map((row) => `<tr>
+            <td><strong>${UI.esc(row.workDate)}</strong></td>
+            <td><strong>${UI.esc(row.employeeName)}</strong><br><span class="muted" style="font-size:11px;">${UI.esc(row.employeeCode)}</span></td>
+            ${isAdmin ? `<td>${UI.esc(row.companyName)}</td>` : ''}
+            <td>${UI.esc(row.shiftName)}</td>
+            <td>${row.inTime ? `<strong>${UI.clock(row.inTime)}</strong>` : '<span class="muted">—</span>'}</td>
+            <td>${row.outTime ? `<strong>${UI.clock(row.outTime)}</strong>` : '<span class="muted">—</span>'}</td>
+            <td><span class="att-mode-icon ${(row.mode || '').toLowerCase()}">${UI.esc(row.mode)}</span></td>
+            <td><span class="att-emp-pill ${(row.status || '').toLowerCase().replace(/ /g, '-')}">${UI.esc(row.status)}</span></td>
+            <td class="num">${row.otHours || '—'}</td>
+            <td style="font-size:12px;">${UI.esc(row.penaltyRemarks || row.locationNote || '—')}</td>
+            <td><button class="btn small" type="button" data-act="edit" data-id="${UI.esc(row.id)}" data-penalty="${row.penalty}" data-ot="${row.otAmount}" data-lop="${row.lopDays}" data-notes="${UI.esc(row.penaltyRemarks)}">Adjust</button></td>
+          </tr>`).join('') || '<tr><td colspan="11" style="text-align:center;padding:28px;color:var(--muted)">No attendance records found for this filter.</td></tr>'}
+          </tbody></table></div>
+        </div>`;
+
+      // Filter submit
+      body.querySelector('#att-filter-form').onsubmit = (e) => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        S1.memory.attDate = data.get('date') || '';
+        S1.memory.attEmp = data.get('empId') || '';
+        if (isAdmin) S1.memory.attCompany = data.get('companyId') || '';
+        Pages.attendance();
+      };
+
+      // Clear filter
+      body.querySelector('#att-clear-filter').onclick = () => {
+        S1.memory.attDate = '';
+        S1.memory.attEmp = '';
+        S1.memory.attCompany = '';
+        Pages.attendance();
+      };
+
+      // HR Punch In button
+      body.querySelector('#hr-punch-in-btn').onclick = async () => {
+        const empId = body.querySelector('#hr-punch-emp-select').value;
+        if (!empId) { UI.toast('Please select an employee first', 'bad'); return; }
+        try {
+          let place = {};
+          try { place = await UI.locate() || {}; } catch (_) {}
+          await UI.api('/api/attendance/punch', { method: 'POST', body: { employeeId: empId, action: 'in', method: 'Manual', ...place } });
+          UI.toast('Punch in recorded!');
+          Pages.attendance();
+        } catch (err) { UI.toast(err.message, 'bad'); }
+      };
+
+      // HR Punch Out button
+      body.querySelector('#hr-punch-out-btn').onclick = async () => {
+        const empId = body.querySelector('#hr-punch-emp-select').value;
+        if (!empId) { UI.toast('Please select an employee first', 'bad'); return; }
+        try {
+          let place = {};
+          try { place = await UI.locate() || {}; } catch (_) {}
+          await UI.api('/api/attendance/punch', { method: 'POST', body: { employeeId: empId, action: 'out', method: 'Manual', ...place } });
+          UI.toast('Punch out recorded!');
+          Pages.attendance();
+        } catch (err) { UI.toast(err.message, 'bad'); }
+      };
+
+      // HR Scan Staff QR
+      body.querySelector('#hr-scan-qr-btn').onclick = () => openQrScan(false);
+
+      // HR View Staff QR
+      body.querySelector('#hr-view-qr-btn').onclick = () => {
+        const empId = body.querySelector('#hr-punch-emp-select').value;
+        showMyQr(empId);
+      };
+
       UI.bind(body, {
         xlsx: () => UI.download('/api/export/attendance?format=xlsx', 's1-attendance.xlsx'),
         mark: () => UI.openModal({
-          title: 'Mark attendance',
-          html: `<div class="fields">${UI.field('employeeId', 'Employee', '', { select: personOptions })}${UI.field('workDate', 'Date', '', { type: 'date', required: true })}${UI.field('inTime', 'In', '09:30')}${UI.field('outTime', 'Out', '18:30')}${UI.field('mode', 'Mode', 'Manual', { select: ['Manual', 'QR', 'ID card', 'Biometric', 'Roster'].map((item) => ({ value: item, label: item })) })}</div>`,
-          onSubmit: async (data) => { await UI.api('/api/attendance/mark', { method: 'POST', body: Object.fromEntries(data.entries()) }); UI.toast('Attendance marked'); S1.go(); }
+          title: 'Mark Attendance Manually',
+          html: `<div class="fields">
+            ${UI.field('employeeId', 'Employee', '', { select: personOptions })}
+            ${UI.field('workDate', 'Date', new Date().toISOString().slice(0, 10), { type: 'date', required: true })}
+            ${UI.field('inTime', 'In time', '09:30')}
+            ${UI.field('outTime', 'Out time', '18:30')}
+            ${UI.field('mode', 'Check-in Mode', 'Manual', { select: ['Manual', 'QR', 'ID card', 'Biometric', 'Web', 'Roster'].map((i) => ({ value: i, label: i })) })}
+          </div>`,
+          onSubmit: async (data) => {
+            await UI.api('/api/attendance/mark', { method: 'POST', body: Object.fromEntries(data.entries()) });
+            UI.toast('Attendance marked successfully');
+            Pages.attendance();
+          }
         }),
         edit: (node) => UI.openModal({
-          title: 'Penalty, LOP, and OT',
-          html: `${UI.field('penalty', 'Penalty amount', node.dataset.penalty, { type: 'number' })}${UI.field('lopDays', 'LOP days', node.dataset.lop, { type: 'number' })}${UI.field('otAmount', 'OT amount', node.dataset.ot, { type: 'number' })}${UI.field('penaltyRemarks', 'Remarks', node.dataset.notes, { type: 'textarea' })}`,
-          onSubmit: async (data) => { await UI.api(`/api/attendance/${node.dataset.id}`, { method: 'PUT', body: Object.fromEntries(data.entries()) }); UI.toast('Attendance updated'); S1.go(); }
+          title: 'Adjust Penalty, LOP, and Overtime',
+          html: `${UI.field('penalty', 'Penalty amount (₹)', node.dataset.penalty, { type: 'number' })}${UI.field('lopDays', 'Loss of pay (LOP) days', node.dataset.lop, { type: 'number' })}${UI.field('otAmount', 'Overtime amount (₹)', node.dataset.ot, { type: 'number' })}${UI.field('penaltyRemarks', 'Remarks & notes', node.dataset.notes, { type: 'textarea' })}`,
+          onSubmit: async (data) => {
+            await UI.api(`/api/attendance/${node.dataset.id}`, { method: 'PUT', body: Object.fromEntries(data.entries()) });
+            UI.toast('Attendance record updated');
+            Pages.attendance();
+          }
         })
       });
-      bindCapture(body, personOptions);
     }
+
+    if (tab === 'today') {
+      const todayDate = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' }).slice(0, 10);
+      const res = await load('/api/attendance?date=' + todayDate);
+      if (!res) return;
+      const allStaff = people.data;
+      const punchedIds = new Set(res.data.map((r) => r.employeeId));
+      const onDuty = res.data.filter((r) => r.inTime && !r.outTime);
+      const doneForDay = res.data.filter((r) => r.outTime);
+      const notPunched = allStaff.filter((e) => !punchedIds.has(e.id));
+
+      body.innerHTML = `
+        <div class="att-stats-row">
+          <div class="att-stat-card"><div class="stat-label">Total Staff</div><div class="stat-value">${allStaff.length}</div><div class="stat-sub">Active workforce</div></div>
+          <div class="att-stat-card"><div class="stat-label">Currently On Duty</div><div class="stat-value" style="color:#15803d;">${onDuty.length}</div><div class="stat-sub">Punched in right now</div></div>
+          <div class="att-stat-card"><div class="stat-label">Done For Day</div><div class="stat-value" style="color:#2563eb;">${doneForDay.length}</div><div class="stat-sub">Punched out completed</div></div>
+          <div class="att-stat-card"><div class="stat-label">Not Arrived Yet</div><div class="stat-value" style="color:#9ca3af;">${notPunched.length}</div><div class="stat-sub">No punch today</div></div>
+        </div>
+
+        <div class="att-table-wrap" style="margin-bottom:16px;">
+          <div class="att-table-head"><h3 style="color:#15803d;">🟢 Currently On Duty (${onDuty.length})</h3></div>
+          <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Shift</th><th>In Time</th><th>Mode</th><th>Status</th></tr></thead><tbody>
+          ${onDuty.map((r) => `<tr>
+            <td><strong>${UI.esc(r.employeeName)}</strong><br><span class="muted" style="font-size:11px;">${UI.esc(r.employeeCode)}</span></td>
+            <td>${UI.esc(r.shiftName)}</td>
+            <td><strong>${UI.clock(r.inTime)}</strong></td>
+            <td><span class="att-mode-icon ${(r.mode || '').toLowerCase()}">${UI.esc(r.mode)}</span></td>
+            <td><span class="att-emp-pill present">${UI.esc(r.status)}</span></td>
+          </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted)">No staff are currently punched in.</td></tr>'}
+          </tbody></table></div>
+        </div>
+
+        <div class="att-table-wrap" style="margin-bottom:16px;">
+          <div class="att-table-head"><h3 style="color:#2563eb;">🔵 Shift Completed Today (${doneForDay.length})</h3></div>
+          <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Shift</th><th>In Time</th><th>Out Time</th><th>Mode</th><th>OT</th></tr></thead><tbody>
+          ${doneForDay.map((r) => `<tr>
+            <td><strong>${UI.esc(r.employeeName)}</strong><br><span class="muted" style="font-size:11px;">${UI.esc(r.employeeCode)}</span></td>
+            <td>${UI.esc(r.shiftName)}</td>
+            <td>${UI.clock(r.inTime)}</td>
+            <td><strong>${UI.clock(r.outTime)}</strong></td>
+            <td>${UI.esc(r.mode)}</td>
+            <td>${r.otHours || '—'}</td>
+          </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">No staff have finished their shift yet today.</td></tr>'}
+          </tbody></table></div>
+        </div>
+
+        <div class="att-table-wrap">
+          <div class="att-table-head"><h3 style="color:#6b7280;">⚫ Not Punched Today (${notPunched.length})</h3></div>
+          <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Department</th><th>Role</th><th>Shift</th></tr></thead><tbody>
+          ${notPunched.map((e) => `<tr>
+            <td><strong>${UI.esc(e.fullName)}</strong><br><span class="muted" style="font-size:11px;">${UI.esc(e.employeeCode)}</span></td>
+            <td>${UI.esc(e.department)}</td>
+            <td>${UI.esc(e.roleTitle)}</td>
+            <td>${UI.esc(e.shiftName)}</td>
+          </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--muted)">All staff have punched in today!</td></tr>'}
+          </tbody></table></div>
+        </div>`;
+    }
+
     if (tab === 'timesheet') {
       const month = S1.memory.attMonth || new Date().toISOString().slice(0, 7);
       const res = await load(`/api/attendance/timesheet?month=${month}`);
       if (!res) return;
-      body.innerHTML = `<form id="month-form" class="composer" style="padding:0;margin-bottom:12px"><input name="month" type="month" value="${UI.esc(month)}"/><button class="btn" type="submit">Show</button></form>
-        <div class="kpis"><article class="kpi"><span>Hours</span><strong>${res.data.totals.hours}</strong></article><article class="kpi"><span>OT hours</span><strong>${res.data.totals.otHours}</strong></article><article class="kpi"><span>Late</span><strong>${res.data.totals.late}</strong></article><article class="kpi"><span>Early</span><strong>${res.data.totals.early}</strong></article></div>
-        <div class="table-wrap"><table><thead><tr><th>Date</th><th>Employee</th><th>In</th><th>Out</th><th>Hours</th><th>OT</th><th>Mode</th><th>Status</th></tr></thead><tbody>
-        ${res.data.rows.map((row) => `<tr><td>${UI.esc(row.workDate)}</td><td>${UI.esc(row.employeeName)}</td><td>${UI.clock(row.inTime)}</td><td>${UI.clock(row.outTime)}</td><td>${row.hours}</td><td>${row.otHours}</td><td>${UI.esc(row.mode)}</td><td>${UI.badge(row.status)}</td></tr>`).join('') || '<tr><td colspan="8">No rows in this month.</td></tr>'}
-        </tbody></table></div>`;
-      body.querySelector('#month-form').onsubmit = (event) => { event.preventDefault(); S1.memory.attMonth = new FormData(event.target).get('month'); Pages.attendance(); };
+      const t = res.data.totals;
+      body.innerHTML = `
+        <form class="att-filter-bar" id="ts-month-form">
+          <input type="month" name="month" value="${UI.esc(month)}" />
+          <button class="att-search-btn" type="submit">Show</button>
+          <button class="btn ghost" type="button" data-act="xlsx">Export Excel</button>
+        </form>
+        <div class="att-stats-row">
+          <div class="att-stat-card"><div class="stat-label">Total Hours</div><div class="stat-value">${t.hours}</div><div class="stat-sub">Worked hours</div></div>
+          <div class="att-stat-card"><div class="stat-label">OT Hours</div><div class="stat-value">${t.otHours}</div><div class="stat-sub">Overtime</div></div>
+          <div class="att-stat-card"><div class="stat-label">Late Arrivals</div><div class="stat-value" style="color:#f97316">${t.late}</div><div class="stat-sub">Past grace period</div></div>
+          <div class="att-stat-card"><div class="stat-label">Early Departures</div><div class="stat-value" style="color:#ef4444">${t.early}</div><div class="stat-sub">Before shift end</div></div>
+        </div>
+        <div class="att-table-wrap">
+          <div class="att-table-head"><h3>Timesheet Log · ${UI.esc(res.data.month)}</h3></div>
+          <div class="table-wrap"><table><thead><tr><th>Date</th><th>Employee</th><th>In Time</th><th>Out Time</th><th>Hours</th><th>OT Hours</th><th>Mode</th><th>Status</th></tr></thead><tbody>
+          ${res.data.rows.map((row) => `<tr>
+            <td>${UI.esc(row.workDate)}</td><td>${UI.esc(row.employeeName)}</td>
+            <td>${UI.clock(row.inTime)}</td><td>${UI.clock(row.outTime)}</td>
+            <td><strong>${row.hours}</strong></td><td>${row.otHours}</td>
+            <td>${UI.esc(row.mode)}</td><td>${UI.badge(row.status)}</td>
+          </tr>`).join('') || '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">No timesheet entries for this period.</td></tr>'}
+          </tbody></table></div>
+        </div>`;
+      body.querySelector('#ts-month-form').onsubmit = (e) => {
+        e.preventDefault(); S1.memory.attMonth = new FormData(e.target).get('month'); Pages.attendance();
+      };
+      UI.bind(body, { xlsx: () => UI.download('/api/export/attendance?format=xlsx', 's1-attendance.xlsx') });
     }
+
     if (tab === 'roster') {
       const today = new Date().toISOString().slice(0, 10);
       const res = await load(`/api/roster?from=${today.slice(0, 8)}01&to=${today.slice(0, 8)}31`);
       if (!res) return;
-      body.innerHTML = `<form id="roster-form" class="fields" style="margin-bottom:12px">${UI.field('employeeId', 'Employee', '', { select: personOptions })}${UI.field('workDate', 'Date', today, { type: 'date' })}${UI.field('shiftId', 'Shift', '', { select: S1.ref.shifts.map((shift) => ({ value: shift.id, label: `${shift.name} ${shift.start}–${shift.end}` })) })}<button class="btn span-2" type="submit">Assign roster</button></form>
-        <div class="table-wrap"><table><thead><tr><th>Date</th><th>Employee</th><th>Shift</th><th>Hours</th></tr></thead><tbody>
-        ${res.data.map((row) => `<tr><td>${UI.esc(row.workDate)}</td><td>${UI.esc(row.employeeName)}</td><td>${UI.esc(row.shiftName)}</td><td>${UI.esc(row.start)}–${UI.esc(row.end)}</td></tr>`).join('') || '<tr><td colspan="4">No roster lines this month.</td></tr>'}
-        </tbody></table></div>`;
+      body.innerHTML = `<form id="roster-form" class="fields" style="margin-bottom:14px;">
+          ${UI.field('employeeId', 'Employee', '', { select: personOptions })}
+          ${UI.field('workDate', 'Date', today, { type: 'date' })}
+          ${UI.field('shiftId', 'Shift', '', { select: S1.ref.shifts.map((s) => ({ value: s.id, label: `${s.name} (${s.start}–${s.end})` })) })}
+          <button class="btn span-2 primary" type="submit">Assign Roster Shift</button>
+        </form>
+        <div class="att-table-wrap">
+          <div class="att-table-head"><h3>Current Month Roster Schedule</h3></div>
+          <div class="table-wrap"><table><thead><tr><th>Date</th><th>Employee</th><th>Shift</th><th>Hours</th></tr></thead><tbody>
+          ${res.data.map((row) => `<tr><td>${UI.esc(row.workDate)}</td><td><strong>${UI.esc(row.employeeName)}</strong></td><td>${UI.esc(row.shiftName)}</td><td>${UI.esc(row.start)}–${UI.esc(row.end)}</td></tr>`).join('') || '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--muted)">No roster lines assigned yet.</td></tr>'}
+          </tbody></table></div>
+        </div>`;
       body.querySelector('#roster-form').onsubmit = async (event) => {
         event.preventDefault();
         await UI.api('/api/roster', { method: 'POST', body: Object.fromEntries(new FormData(event.target).entries()) });
-        UI.toast('Roster saved');
-        S1.go();
+        UI.toast('Roster assignment saved'); S1.go();
       };
     }
+
     if (tab === 'shifts') {
-      body.innerHTML = `<div class="page-actions" style="margin-bottom:12px"><button class="btn" type="button" data-act="add">Add shift</button></div>
-        <div class="table-wrap"><table><thead><tr><th>Shift</th><th>Start</th><th>End</th><th>Scope</th></tr></thead><tbody>
-        ${S1.ref.shifts.map((shift) => `<tr><td>${UI.esc(shift.name)}</td><td>${UI.esc(shift.start)}</td><td>${UI.esc(shift.end)}</td><td>${shift.clientId ? 'Company' : 'Shared'}</td></tr>`).join('')}
-        </tbody></table></div>`;
+      body.innerHTML = `<div class="page-actions" style="margin-bottom:14px;"><button class="btn primary" type="button" data-act="add">+ Add Shift</button></div>
+        <div class="att-table-wrap">
+          <div class="att-table-head"><h3>Defined Shifts</h3></div>
+          <div class="table-wrap"><table><thead><tr><th>Shift Name</th><th>Start Time</th><th>End Time</th><th>Scope</th></tr></thead><tbody>
+          ${S1.ref.shifts.map((s) => `<tr><td><strong>${UI.esc(s.name)}</strong></td><td>${UI.esc(s.start)}</td><td>${UI.esc(s.end)}</td><td>${s.clientId ? 'Company' : 'Shared across companies'}</td></tr>`).join('')}
+          </tbody></table></div>
+        </div>`;
       UI.bind(body, { add: () => UI.openModal({
-        title: 'Shift',
-        html: `${S1.user.role === 'admin' ? UI.field('clientId', 'Company', '', { select: [{ value: '', label: 'Shared across companies' }].concat(S1.ref.companies.map((company) => ({ value: company.id, label: company.name }))) }) : ''}${UI.field('name', 'Name', '', { required: true })}${UI.field('start', 'Start', '09:30')}${UI.field('end', 'End', '18:30')}`,
+        title: 'Create New Shift',
+        html: `${isAdmin ? UI.field('clientId', 'Company', '', { select: [{ value: '', label: 'Shared across companies' }].concat(S1.ref.companies.map((c) => ({ value: c.id, label: c.name }))) }) : ''}${UI.field('name', 'Shift Name', '', { required: true })}${UI.field('start', 'Start Time', '09:30')}${UI.field('end', 'End Time', '18:30')}`,
         onSubmit: async (data) => {
           await UI.api('/api/shifts', { method: 'POST', body: Object.fromEntries(data.entries()) });
-          S1.ref = (await UI.api('/api/reference')).data;
-          UI.toast('Shift saved');
-          S1.go();
+          S1.ref = (await UI.api('/api/reference')).data; UI.toast('Shift created successfully'); S1.go();
         }
       }) });
     }
+
     if (tab === 'rules') {
       const res = await load('/api/attendance/rules');
       if (!res) return;
-      body.innerHTML = res.data.map((rule) => `<form class="card fields" data-client="${UI.esc(rule.clientId)}" style="margin-bottom:12px"><h3>${UI.esc(rule.companyName)}</h3>
-        ${UI.field('lateGrace', 'Late grace minutes', rule.lateGrace, { type: 'number' })}
-        ${UI.field('earlyGrace', 'Early-out grace minutes', rule.earlyGrace, { type: 'number' })}
-        ${UI.field('otAfter', 'Overtime starts after minutes', rule.otAfter, { type: 'number' })}
-        <p class="muted span-2">Modes in use: ${(rule.modes || []).map((mode) => UI.esc(mode)).join(', ')}. Manual punch in and punch out, QR scan, ID card scan, biometric import, and roster assignment.</p>
-        <button class="btn" type="submit">Save rules</button></form>`).join('') || '<p class="muted">No company rules yet.</p>';
-      body.querySelectorAll('form').forEach((form) => {
-        form.onsubmit = async (event) => {
+      body.innerHTML = res.data.map((rule) => `<form class="card fields" data-client="${UI.esc(rule.clientId)}" style="margin-bottom:14px;">
+        <h3 class="span-2">${UI.esc(rule.companyName)} — Attendance Rules</h3>
+        ${UI.field('lateGrace', 'Late grace period (minutes)', rule.lateGrace, { type: 'number' })}
+        ${UI.field('earlyGrace', 'Early-out grace period (minutes)', rule.earlyGrace, { type: 'number' })}
+        ${UI.field('otAfter', 'Overtime threshold after shift end (minutes)', rule.otAfter, { type: 'number' })}
+        <p class="muted span-2">Enabled check-in modes: Manual punch, QR code scanning, ID card barcode scanning, Biometric import, and Roster scheduling.</p>
+        <button class="btn primary" type="submit">Save Attendance Rules</button>
+      </form>`).join('') || '<p class="muted">No company rules found.</p>';
+      body.querySelectorAll('form').forEach((f) => {
+        f.onsubmit = async (event) => {
           event.preventDefault();
-          const data = Object.fromEntries(new FormData(form).entries());
-          data.clientId = form.dataset.client;
+          const data = Object.fromEntries(new FormData(f).entries());
+          data.clientId = f.dataset.client;
           data.modes = ['Web', 'Manual', 'QR', 'ID card', 'Biometric', 'Roster'];
-          await UI.api('/api/attendance/rules', { method: 'PUT', body: data });
-          UI.toast('Rules saved');
+          await UI.api('/api/attendance/rules', { method: 'PUT', body: data }); UI.toast('Rules saved successfully');
         };
       });
     }
+
     if (tab === 'leave') {
       const [policies, board] = await Promise.all([load('/api/leave-policies'), load('/api/leave-accrual')]);
       if (!policies || !board) return;
-      body.innerHTML = `<div class="page-actions" style="margin-bottom:12px"><button class="btn" type="button" data-act="policy">Edit policy</button><button class="btn ghost" type="button" data-act="accrue">Post this month’s accrual</button></div>
-        <article class="card" style="margin-bottom:12px"><h3>Leave policy</h3><div class="table-wrap"><table><thead><tr><th>Company</th><th>Type</th><th>Yearly quota</th><th>Monthly accrual</th><th>Carry forward</th><th>Paid</th></tr></thead><tbody>
-        ${policies.data.map((row) => `<tr><td>${UI.esc(row.companyName)}</td><td>${UI.esc(row.leaveType)}</td><td>${row.yearlyQuota}</td><td>${row.monthlyAccrual}</td><td>${row.carryForward}</td><td>${row.paid ? 'Yes' : 'No'}</td></tr>`).join('')}
-        </tbody></table></div></article>
-        ${board.data.map((person) => `<article class="card" style="margin-bottom:12px"><h3>${UI.esc(person.fullName)}</h3><div class="table-wrap"><table><thead><tr><th>Type</th><th>Accrued</th><th>Used</th><th>Balance</th><th>Quota</th></tr></thead><tbody>
-          ${person.types.map((type) => `<tr><td>${UI.esc(type.leaveType)}</td><td>${type.accrued}</td><td>${type.used}</td><td>${type.balance}</td><td>${type.yearlyQuota}</td></tr>`).join('') || '<tr><td colspan="5">No policy lines.</td></tr>'}
-        </tbody></table></div></article>`).join('')}`;
+      body.innerHTML = `<div class="page-actions" style="margin-bottom:14px;">
+          <button class="btn primary" type="button" data-act="policy">+ Add Leave Policy</button>
+          <button class="btn ghost" type="button" data-act="accrue">Post Accruals</button>
+        </div>
+        <article class="card" style="margin-bottom:14px;"><h3>Company Leave Policies</h3>
+          <div class="table-wrap"><table><thead><tr><th>Company</th><th>Leave Type</th><th>Yearly Quota</th><th>Monthly Accrual</th><th>Carry Forward</th><th>Paid</th></tr></thead><tbody>
+          ${policies.data.map((row) => `<tr><td>${UI.esc(row.companyName)}</td><td><strong>${UI.esc(row.leaveType)}</strong></td><td>${row.yearlyQuota} days</td><td>${row.monthlyAccrual} days</td><td>${row.carryForward} days</td><td>${row.paid ? 'Yes' : 'No'}</td></tr>`).join('')}
+          </tbody></table></div>
+        </article>
+        ${board.data.map((person) => `<article class="card" style="margin-bottom:12px;"><h3>${UI.esc(person.fullName)}</h3>
+          <div class="table-wrap"><table><thead><tr><th>Leave Type</th><th>Accrued</th><th>Used</th><th>Balance</th><th>Quota</th></tr></thead><tbody>
+          ${person.types.map((type) => `<tr><td>${UI.esc(type.leaveType)}</td><td>${type.accrued}</td><td>${type.used}</td><td><strong>${type.balance}</strong></td><td>${type.yearlyQuota}</td></tr>`).join('') || '<tr><td colspan="5">No records.</td></tr>'}
+          </tbody></table></div>
+        </article>`).join('')}`;
       UI.bind(body, {
         policy: () => UI.openModal({
-          title: 'Leave type',
-          html: `${S1.user.role === 'admin' ? UI.field('clientId', 'Company', '', { select: S1.ref.companies.map((company) => ({ value: company.id, label: company.name })) }) : ''}${UI.field('leaveType', 'Type', 'Casual', { select: ['Casual', 'Sick', 'Earned', 'Unpaid'].map((item) => ({ value: item, label: item })) })}${UI.field('yearlyQuota', 'Yearly quota', 12, { type: 'number' })}${UI.field('monthlyAccrual', 'Monthly accrual', 1, { type: 'number' })}${UI.field('carryForward', 'Carry forward', 0, { type: 'number' })}${UI.field('paid', 'Paid', 'yes', { select: [{ value: 'yes', label: 'Paid' }, { value: 'no', label: 'Unpaid' }] })}`,
-          onSubmit: async (data) => { await UI.api('/api/leave-policies', { method: 'POST', body: Object.fromEntries(data.entries()) }); UI.toast('Policy saved'); S1.go(); }
+          title: 'Configure Leave Type',
+          html: `${isAdmin ? UI.field('clientId', 'Company', '', { select: S1.ref.companies.map((c) => ({ value: c.id, label: c.name })) }) : ''}${UI.field('leaveType', 'Type', 'Casual', { select: ['Casual', 'Sick', 'Earned', 'Unpaid'].map((i) => ({ value: i, label: i })) })}${UI.field('yearlyQuota', 'Yearly quota (days)', 12, { type: 'number' })}${UI.field('monthlyAccrual', 'Monthly accrual (days)', 1, { type: 'number' })}${UI.field('carryForward', 'Max carry forward (days)', 0, { type: 'number' })}${UI.field('paid', 'Paid leave', 'yes', { select: [{ value: 'yes', label: 'Paid' }, { value: 'no', label: 'Unpaid' }] })}`,
+          onSubmit: async (data) => { await UI.api('/api/leave-policies', { method: 'POST', body: Object.fromEntries(data.entries()) }); UI.toast('Leave policy saved'); S1.go(); }
         }),
         accrue: async () => { const result = await UI.api('/api/leave-accrual', { method: 'POST', body: {} }); UI.toast(`${result.data.posted} accrual lines posted`); S1.go(); }
       });
     }
+
     if (tab === 'holidays') {
       const holidays = await load('/api/holidays');
       if (!holidays) return;
-      body.innerHTML = `<div class="page-actions" style="margin-bottom:12px"><button class="btn" type="button" data-act="holiday">Add holiday</button></div>
-        ${holidays.data.map((day) => `<div class="flag-row"><span>${UI.esc(day.date)} · ${UI.esc(day.name)}</span><span class="muted">${UI.esc(day.companyName)}</span></div>`).join('') || '<p class="muted">No holidays on this calendar.</p>'}`;
+      body.innerHTML = `<div class="page-actions" style="margin-bottom:14px;"><button class="btn primary" type="button" data-act="holiday">+ Add Holiday</button></div>
+        ${holidays.data.map((day) => `<div class="flag-row"><span>🎉 <strong>${UI.esc(day.date)}</strong> · ${UI.esc(day.name)}</span><span class="muted">${UI.esc(day.companyName)}</span></div>`).join('') || '<p class="muted">No holidays listed.</p>'}`;
       UI.bind(body, { holiday: () => UI.openModal({
-        title: 'Holiday',
-        html: `${S1.user.role === 'admin' ? UI.field('clientId', 'Applies to', '', { select: [{ value: '', label: 'All companies' }].concat(S1.ref.companies.map((company) => ({ value: company.id, label: company.name }))) }) : ''}${UI.field('name', 'Name', '', { required: true })}${UI.field('date', 'Date', '', { type: 'date', required: true })}`,
+        title: 'Add Holiday',
+        html: `${isAdmin ? UI.field('clientId', 'Applies To', '', { select: [{ value: '', label: 'All companies' }].concat(S1.ref.companies.map((c) => ({ value: c.id, label: c.name }))) }) : ''}${UI.field('name', 'Holiday Name', '', { required: true })}${UI.field('date', 'Holiday Date', '', { type: 'date', required: true })}`,
         onSubmit: async (data) => { await UI.api('/api/holidays', { method: 'POST', body: Object.fromEntries(data.entries()) }); UI.toast('Holiday added'); S1.go(); }
       }) });
     }
@@ -1388,44 +1958,510 @@ const Pages = {
   },
 
   async messenger() {
-    if (S1.msgPoll) clearInterval(S1.msgPoll);
-    const channels = await load('/api/messages/channels');
-    if (!channels) return;
-    if (!S1.memory.channel || !channels.data.some((item) => item.id === S1.memory.channel)) S1.memory.channel = channels.data[0].id;
+    if (S1.msgPoll) { clearInterval(S1.msgPoll); S1.msgPoll = null; }
+    if (S1.msgStream) { S1.msgStream.close(); S1.msgStream = null; }
+
+    const [channelsRes, usersRes] = await Promise.all([
+      load('/api/messages/channels'),
+      load('/api/messages/users')
+    ]);
+    if (!channelsRes) return;
+
+    const channels = channelsRes.data || [];
+    let allUsers = (usersRes && usersRes.data) || [];
+    let currentTab = S1.memory.messengerTab || 'all';
+
+    // Ensure valid selected channel
+    if (!S1.memory.channel || (!channels.some((c) => c.id === S1.memory.channel) && !S1.memory.channel.startsWith('dm:'))) {
+      S1.memory.channel = channels[0] ? channels[0].id : 'desk';
+    }
+
     const messages = await load(`/api/messages?channel=${encodeURIComponent(S1.memory.channel)}`);
     if (!messages) return;
-    const root = mount(`${head('Messenger', 'Company groups, the activity inbox, POSH thoughts, and the query desk. Your name and status can be edited.')}
-      <div class="page-actions" style="margin-bottom:12px"><button class="btn ghost" type="button" id="edit-profile">Edit messenger profile</button></div>
-      <section class="chat"><div class="chat-list">${channels.data.map((item) => `<button type="button" class="${item.id === S1.memory.channel ? 'on' : ''}" data-channel="${UI.esc(item.id)}">${UI.esc(item.label)}</button>`).join('')}</div>
-        <div class="chat-main"><div class="chat-log" id="chat-log"></div><form class="composer" id="composer"><input name="body" placeholder="Write to this group" required/><button class="btn primary" type="submit">Send</button></form></div></section>`);
+
+    // Helper: Determine recipient details for active chat header
+    const getActiveHeader = (channelId) => {
+      if (channelId.startsWith('dm:')) {
+        const parts = channelId.split(':');
+        const otherId = parts[1] === S1.user.id ? parts[2] : parts[1];
+        const matchUser = allUsers.find((u) => u.id === otherId) ||
+                          channels.find((c) => c.id === channelId);
+        const name = matchUser ? (matchUser.name || matchUser.label) : 'Team Member';
+        const role = matchUser ? (matchUser.roleLabel || matchUser.title || 'Colleague') : 'Colleague';
+        const dept = matchUser ? (matchUser.department || matchUser.companyName || 'Direct Message') : 'Direct Message';
+        const status = matchUser ? (matchUser.statusText || 'Available on Runwork One') : 'Active now';
+        const initials = name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+
+        return `
+          <div class="chat-recipient-info">
+            <div class="chat-avatar">
+              ${initials}
+              <span class="chat-online-dot"></span>
+            </div>
+            <div>
+              <div class="chat-recipient-title">
+                ${UI.esc(name)}
+                <span class="chat-recipient-badge">${UI.esc(role)}</span>
+              </div>
+              <div class="chat-recipient-meta">
+                <span class="chat-status-pulse">Active now</span> · <span>${UI.esc(dept)}</span> · <span class="muted">${UI.esc(status)}</span>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn primary small" id="focus-composer-btn"
+            style="font-size:12px;padding:6px 14px;display:flex;align-items:center;gap:5px;flex-shrink:0;">
+            💬 Send Message
+          </button>
+        `;
+      }
+
+      const grp = channels.find((c) => c.id === channelId) || { label: 'General Channel', icon: '💬', description: 'Workplace conversation' };
+      return `
+        <div class="chat-recipient-info">
+          <div class="chat-avatar group-avatar">${grp.icon || '💬'}</div>
+          <div>
+            <div class="chat-recipient-title">
+              ${UI.esc(grp.label)}
+              <span class="chat-recipient-badge">Workplace Channel</span>
+            </div>
+            <div class="chat-recipient-meta">
+              <span>${UI.esc(grp.description || 'Active workplace discussion')}</span>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn ghost small" id="focus-composer-btn"
+          style="font-size:12px;padding:6px 14px;display:flex;align-items:center;gap:5px;flex-shrink:0;">
+          💬 Write Message
+        </button>
+      `;
+    };
+
+    // Render Messenger Shell
+    const root = mount(`
+      ${head('Business Messenger', 'Real-time workplace communication, user search, direct 1-to-1 chats, and operations groups.')}
+      <div class="page-actions" style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="chat-status-pulse" style="font-size:12px;">Real-Time Messenger Online</span>
+          <span class="muted" style="font-size:12px;">· Signed in as <strong>${UI.esc(S1.user.name)}</strong></span>
+        </div>
+        <button class="btn ghost small" type="button" id="edit-profile">Edit My Messenger Status</button>
+      </div>
+
+      <section class="chat">
+        <!-- Sidebar with User Search & Channel List -->
+        <div class="chat-list">
+          <div class="chat-search-wrap">
+            <span class="chat-search-icon">🔍</span>
+            <input type="search" id="chat-user-search" class="chat-search-input" placeholder="Search users by name, role, desk..." autocomplete="off"/>
+          </div>
+
+          <div class="chat-tabs">
+            <button type="button" class="chat-tab ${currentTab === 'all' ? 'active' : ''}" data-tab="all">All</button>
+            <button type="button" class="chat-tab ${currentTab === 'dm' ? 'active' : ''}" data-tab="dm">Direct (${allUsers.length})</button>
+            <button type="button" class="chat-tab ${currentTab === 'channels' ? 'active' : ''}" data-tab="channels">Channels</button>
+          </div>
+
+          <div class="chat-items-scroll" id="chat-items-container">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-main">
+          <div class="chat-header" id="chat-header-bar">
+            ${getActiveHeader(S1.memory.channel)}
+          </div>
+
+          <div class="chat-log" id="chat-log"></div>
+
+          <!-- Typing indicator bar -->
+          <div id="chat-typing-bar" style="padding:0 16px;display:none;">
+            <div class="typing-indicator">
+              <span class="typing-dots-anim">
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+              </span>
+              <span id="typing-name">Team member is typing...</span>
+            </div>
+          </div>
+
+          <!-- Quick Interaction Chips -->
+          <div class="chat-chips">
+            <button type="button" class="chat-chip" data-msg="Hello! Hope you are having a productive day.">👋 Hello!</button>
+            <button type="button" class="chat-chip" data-msg="Shift timing update: Can you confirm today's floor roster?">⏱️ Shift update</button>
+            <button type="button" class="chat-chip" data-msg="Regarding leave approval: Please review my pending request.">🏖️ Leave query</button>
+            <button type="button" class="chat-chip" data-msg="Where can I download the latest monthly payslip?">📄 Payslip check</button>
+            <button type="button" class="chat-chip" data-msg="Documents uploaded to the Digital Employee Vault.">💼 Vault verified</button>
+          </div>
+
+          <form class="composer" id="composer">
+            <input name="body" id="composer-input" placeholder="Write a message... (Press Enter to send)" autocomplete="off" required/>
+            <button class="btn primary" type="submit">
+              Send
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-left:4px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </form>
+        </div>
+      </section>
+    `);
+
+    // Render sidebar items based on search query and active tab
+    const renderSidebar = (searchQuery = '') => {
+      const container = root.querySelector('#chat-items-container');
+      if (!container) return;
+      const q = searchQuery.trim().toLowerCase();
+
+      let html = '';
+
+      // If searching, show matching Users first
+      if (q) {
+        const matchedUsers = allUsers.filter((u) =>
+          u.name.toLowerCase().includes(q) ||
+          u.role.toLowerCase().includes(q) ||
+          (u.title && u.title.toLowerCase().includes(q)) ||
+          (u.department && u.department.toLowerCase().includes(q)) ||
+          (u.companyName && u.companyName.toLowerCase().includes(q))
+        );
+
+        html += `<div class="chat-group-title">Users Matching "${UI.esc(searchQuery)}" (${matchedUsers.length})</div>`;
+        if (matchedUsers.length === 0) {
+          html += `<div style="padding:16px;text-align:center;font-size:12px;color:var(--muted);">No users found matching "${UI.esc(searchQuery)}".</div>`;
+        } else {
+          html += matchedUsers.map((u) => {
+            const initials = u.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+            const isActive = S1.memory.channel === u.dmChannel;
+            return `
+              <button type="button" class="chat-item ${isActive ? 'on' : ''}" data-channel="${UI.esc(u.dmChannel)}" data-user-id="${UI.esc(u.id)}">
+                <div class="chat-avatar">
+                  ${initials}
+                  <span class="chat-online-dot"></span>
+                </div>
+                <div class="chat-item-info">
+                  <div class="chat-item-name">
+                    <span>${UI.esc(u.name)}</span>
+                    <span style="font-size:10px;color:var(--accent);">${UI.esc(u.roleLabel)}</span>
+                  </div>
+                  <div class="chat-item-sub">${UI.esc(u.department)} · ${UI.esc(u.statusText)}</div>
+                </div>
+                <span class="chat-msg-action-pill" style="margin-left:auto;font-size:11px;background:#e0f2fe;color:#0284c7;padding:3px 8px;border-radius:999px;font-weight:600;flex-shrink:0;">
+                  Message 💬
+                </span>
+              </button>
+            `;
+          }).join('');
+        }
+      } else {
+        // Normal View (Tabs)
+        const dms = channels.filter((c) => c.kind === 'dm');
+        const groups = channels.filter((c) => c.kind !== 'dm');
+
+        if (currentTab === 'all' || currentTab === 'dm') {
+          html += `<div class="chat-group-title">Direct Messages (${dms.length})</div>`;
+          if (dms.length === 0) {
+            html += `
+              <div style="padding:10px 12px;font-size:11.5px;color:var(--muted);background:rgba(0,0,0,0.02);border-radius:8px;margin-bottom:8px;">
+                💡 <em>Use the search bar above to find colleagues and start a direct chat.</em>
+              </div>
+            `;
+          } else {
+            html += dms.map((item) => {
+              const initials = item.label.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+              const isSelected = S1.memory.channel === item.id;
+              return `
+                <button type="button" class="chat-item ${isSelected ? 'on' : ''}" data-channel="${UI.esc(item.id)}">
+                  <div class="chat-avatar">
+                    ${initials}
+                    <span class="chat-online-dot"></span>
+                  </div>
+                  <div class="chat-item-info">
+                    <div class="chat-item-name">
+                      <span>${UI.esc(item.label)}</span>
+                      <span class="chat-item-time">${item.lastTime ? UI.when(item.lastTime) : ''}</span>
+                    </div>
+                    <div class="chat-item-sub">${UI.esc(item.lastMsg || item.statusText || 'Click to message')}</div>
+                  </div>
+                </button>
+              `;
+            }).join('');
+          }
+
+          // Suggest available users to message if tab is DM or All
+          const otherSuggested = allUsers.filter((u) => !dms.some((dm) => dm.id === u.dmChannel)).slice(0, 5);
+          if (otherSuggested.length > 0 && currentTab === 'dm') {
+            html += `<div class="chat-group-title" style="margin-top:12px;">Suggested Team Members (${otherSuggested.length})</div>`;
+            html += otherSuggested.map((u) => {
+              const initials = u.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+              return `
+                <button type="button" class="chat-item" data-channel="${UI.esc(u.dmChannel)}" data-user-id="${UI.esc(u.id)}">
+                  <div class="chat-avatar">
+                    ${initials}
+                    <span class="chat-online-dot"></span>
+                  </div>
+                  <div class="chat-item-info">
+                    <div class="chat-item-name">
+                      <span>${UI.esc(u.name)}</span>
+                      <span style="font-size:10px;color:var(--muted);">${UI.esc(u.roleLabel)}</span>
+                    </div>
+                    <div class="chat-item-sub">Start conversation ↗</div>
+                  </div>
+                </button>
+              `;
+            }).join('');
+          }
+        }
+
+        if (currentTab === 'all' || currentTab === 'channels') {
+          html += `<div class="chat-group-title" style="margin-top:10px;">Workplace Channels (${groups.length})</div>`;
+          html += groups.map((item) => {
+            const isSelected = S1.memory.channel === item.id;
+            return `
+              <button type="button" class="chat-item ${isSelected ? 'on' : ''}" data-channel="${UI.esc(item.id)}">
+                <div class="chat-avatar group-avatar">${item.icon || '💬'}</div>
+                <div class="chat-item-info">
+                  <div class="chat-item-name">
+                    <span>${UI.esc(item.label)}</span>
+                  </div>
+                  <div class="chat-item-sub">${UI.esc(item.description || 'Company discussion')}</div>
+                </div>
+              </button>
+            `;
+          }).join('');
+        }
+      }
+
+      container.innerHTML = html;
+
+      // Bind channel click handlers
+      container.querySelectorAll('[data-channel]').forEach((button) => {
+        button.onclick = () => {
+          const nextChannel = button.dataset.channel;
+          if (S1.memory.channel !== nextChannel) {
+            S1.memory.channel = nextChannel;
+            Pages.messenger();
+          }
+        };
+      });
+    };
+
+    // Paint messages in Chat Log
     const paint = (list) => {
       const log = root.querySelector('#chat-log');
       if (!log) return;
-      log.innerHTML = list.map((message) => `<div class="bubble ${message.senderId === S1.user.id ? 'mine' : ''}"><small>${UI.esc(message.senderName)} · ${UI.esc(message.senderRole)} · ${UI.when(message.createdAt)}</small>${UI.esc(message.body)}</div>`).join('') || '<p class="muted">No messages in this group yet.</p>';
+
+      if (!list || list.length === 0) {
+        log.innerHTML = `
+          <div class="chat-date-pill">Today</div>
+          <div class="empty" style="padding:40px 20px;text-align:center;">
+            <div style="font-size:36px;margin-bottom:8px;">💬</div>
+            <strong style="color:var(--text);font-size:15px;">No messages in this conversation yet.</strong>
+            <p class="muted" style="font-size:12.5px;margin:6px 0 16px;">Send a message to start communicating with this team member in real time.</p>
+            <button type="button" class="btn primary small" id="empty-state-msg-btn"
+              style="margin:0 auto;display:inline-flex;align-items:center;gap:6px;padding:8px 18px;font-size:13px;border-radius:999px;">
+              💬 Start Conversation
+            </button>
+          </div>
+        `;
+        const emptyBtn = log.querySelector('#empty-state-msg-btn');
+        if (emptyBtn) {
+          emptyBtn.onclick = () => {
+            const input = root.querySelector('#composer-input');
+            if (input) {
+              input.focus();
+              input.placeholder = "Type your first message here and press Enter...";
+            }
+          };
+        }
+        return;
+      }
+
+      log.innerHTML = `
+        <div class="chat-date-pill">Today</div>
+        ${list.map((message) => {
+          const isMine = message.senderId === S1.user.id;
+          return `
+            <div class="bubble ${isMine ? 'mine' : ''}">
+              <small>
+                <span>${UI.esc(message.senderName)} · ${UI.esc(message.senderRole)}</span>
+                <span>${UI.when(message.createdAt)}${isMine ? '<span class="bubble-check">✓✓</span>' : ''}</span>
+              </small>
+              <div class="bubble-text">${UI.esc(message.body)}</div>
+            </div>
+          `;
+        }).join('')}
+      `;
       log.scrollTop = log.scrollHeight;
     };
+
+    // Initial paint of messages & sidebar
     paint(messages.data);
-    root.querySelectorAll('[data-channel]').forEach((button) => { button.onclick = () => { S1.memory.channel = button.dataset.channel; Pages.messenger(); }; });
-    root.querySelector('#composer').onsubmit = async (event) => {
-      event.preventDefault();
-      const body = new FormData(event.target).get('body');
-      await UI.api('/api/messages', { method: 'POST', body: { channel: S1.memory.channel, body } });
-      event.target.reset();
-      const fresh = await UI.api(`/api/messages?channel=${encodeURIComponent(S1.memory.channel)}`);
-      paint(fresh.data);
-    };
-    root.querySelector('#edit-profile').onclick = () => UI.openModal({
-      title: 'Your profile',
-      html: `${UI.field('name', 'Name', S1.user.name)}${UI.field('phone', 'Phone', S1.user.phone)}${UI.field('statusText', 'Status', S1.user.statusText, { span: true })}`,
-      onSubmit: async (data) => { S1.user = (await UI.api('/api/profile', { method: 'PUT', body: Object.fromEntries(data.entries()) })).data; UI.toast('Profile updated'); S1.go(); }
+    renderSidebar();
+
+    // Setup User Search input
+    const searchInput = root.querySelector('#chat-user-search');
+    let searchDebounce;
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(() => {
+          renderSidebar(e.target.value);
+        }, 150);
+      });
+    }
+
+    // Setup Tab Pills (All / Direct / Channels)
+    root.querySelectorAll('.chat-tab').forEach((tabBtn) => {
+      tabBtn.onclick = () => {
+        currentTab = tabBtn.dataset.tab;
+        S1.memory.messengerTab = currentTab;
+        root.querySelectorAll('.chat-tab').forEach((b) => b.classList.remove('active'));
+        tabBtn.classList.add('active');
+        renderSidebar(searchInput ? searchInput.value : '');
+      };
     });
+
+    // Wire Header Focus Message Button
+    const focusBtn = root.querySelector('#focus-composer-btn');
+    if (focusBtn) {
+      focusBtn.onclick = () => {
+        const composerInput = root.querySelector('#composer-input');
+        if (composerInput) {
+          composerInput.focus();
+          composerInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      };
+    }
+
+    // Quick Action Chips
+    root.querySelectorAll('.chat-chip').forEach((chip) => {
+      chip.onclick = () => {
+        const composerInput = root.querySelector('#composer-input');
+        if (composerInput) {
+          composerInput.value = chip.dataset.msg;
+          composerInput.focus();
+        }
+      };
+    });
+
+    // Show/Hide Typing Indicator
+    const typingBar = root.querySelector('#chat-typing-bar');
+    const showTyping = (nameText) => {
+      if (typingBar) {
+        const nameEl = root.querySelector('#typing-name');
+        if (nameEl) nameEl.textContent = `${nameText} is typing...`;
+        typingBar.style.display = 'block';
+        const log = root.querySelector('#chat-log');
+        if (log) log.scrollTop = log.scrollHeight;
+      }
+    };
+    const hideTyping = () => {
+      if (typingBar) typingBar.style.display = 'none';
+    };
+
+    // Composer Submit Handler (Optimistic Send)
+    const composer = root.querySelector('#composer');
+    composer.onsubmit = async (event) => {
+      event.preventDefault();
+      const input = composer.querySelector('input[name="body"]');
+      const body = input.value.trim();
+      if (!body) return;
+
+      input.value = '';
+
+      // Optimistic Render
+      const tempMsg = {
+        id: 'tmp_' + Date.now(),
+        senderId: S1.user.id,
+        senderName: S1.user.name,
+        senderRole: S1.user.role,
+        body,
+        createdAt: new Date().toISOString()
+      };
+      const currentList = Array.from(root.querySelectorAll('.bubble')).map(() => ({})); // placeholder
+      const log = root.querySelector('#chat-log');
+      if (log) {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble mine';
+        bubble.innerHTML = `
+          <small>
+            <span>${UI.esc(S1.user.name)} · ${UI.esc(S1.user.role)}</span>
+            <span>Just now<span class="bubble-check">✓✓</span></span>
+          </small>
+          <div class="bubble-text">${UI.esc(body)}</div>
+        `;
+        log.appendChild(bubble);
+        log.scrollTop = log.scrollHeight;
+      }
+
+      // Simulate typing indicator if in DM
+      if (S1.memory.channel.startsWith('dm:')) {
+        setTimeout(() => {
+          showTyping('Colleague');
+        }, 300);
+      }
+
+      // Actual API Send
+      try {
+        await UI.api('/api/messages', { method: 'POST', body: { channel: S1.memory.channel, body } });
+        const fresh = await UI.api(`/api/messages?channel=${encodeURIComponent(S1.memory.channel)}`);
+        hideTyping();
+        paint(fresh.data);
+      } catch (err) {
+        hideTyping();
+        UI.toast('Failed to send message: ' + (err.message || 'Network error'));
+      }
+    };
+
+    // Edit Profile Modal
+    root.querySelector('#edit-profile').onclick = () => UI.openModal({
+      title: 'Messenger Profile & Status',
+      html: `
+        ${UI.field('name', 'Display Name', S1.user.name)}
+        ${UI.field('phone', 'Phone Number', S1.user.phone)}
+        ${UI.field('statusText', 'Messenger Status Note', S1.user.statusText || 'Available on Runwork One', { span: true })}
+      `,
+      onSubmit: async (data) => {
+        S1.user = (await UI.api('/api/profile', { method: 'PUT', body: Object.fromEntries(data.entries()) })).data;
+        UI.toast('Messenger profile updated');
+        S1.go();
+      }
+    });
+
+    // Real-Time Server-Sent Events (SSE) Stream
+    try {
+      const streamUrl = `/api/messages/stream?token=${encodeURIComponent(localStorage.getItem('s1_token') || '')}`;
+      const stream = new EventSource(streamUrl);
+      S1.msgStream = stream;
+
+      stream.onmessage = (event) => {
+        try {
+          const newMsg = JSON.parse(event.data);
+          if (newMsg && newMsg.channel === S1.memory.channel) {
+            hideTyping();
+            // Re-fetch or append
+            UI.api(`/api/messages?channel=${encodeURIComponent(S1.memory.channel)}`).then((res) => {
+              if (res && res.data) paint(res.data);
+            }).catch(() => {});
+          }
+        } catch (_) {}
+      };
+    } catch (_) {}
+
+    // Polling fallback every 2.5s
     S1.msgPoll = setInterval(async () => {
       try {
         const fresh = await UI.api(`/api/messages?channel=${encodeURIComponent(S1.memory.channel)}`);
-        paint(fresh.data);
-      } catch (_) { /* ignore a missed poll */ }
-    }, 8000);
-    S1.addStop(() => { clearInterval(S1.msgPoll); S1.msgPoll = null; });
+        if (fresh && fresh.data) {
+          paint(fresh.data);
+        }
+      } catch (_) {}
+    }, 2500);
+
+    // Stop hook when user navigates away
+    S1.addStop(() => {
+      if (S1.msgPoll) { clearInterval(S1.msgPoll); S1.msgPoll = null; }
+      if (S1.msgStream) { S1.msgStream.close(); S1.msgStream = null; }
+    });
   },
 
   async leads() {

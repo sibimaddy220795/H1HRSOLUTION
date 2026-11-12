@@ -3,221 +3,1668 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Runwork · S1 HR Solution</title>
+  <title>Runwork EWFS · Enterprise Workflow System | S1 HR Solutions</title>
   <link rel="icon" href="/favicon.svg"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@420;520;640;720&display=swap" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="/css/styles.css"/>
   <link rel="stylesheet" href="/css/home.css"/>
 </head>
-<body class="home">
-  <header class="top">
-    <a class="brand" href="#top"><span>R</span> Runwork</a>
-    <nav>
-      <a href="#top">Home</a>
-      <a href="#features">Features</a>
-      <a href="#about">About Us</a>
-      <a href="#pricing">Pricing</a>
-      <a href="#blog">Blogs</a>
-    </nav>
-    <details class="login-pill">
-      <summary>Login</summary>
-      <a href="/login/superadmin">Super admin</a>
-      <a href="/login/client-admin">Client admin</a>
-      <a href="/login/admin">Admin</a>
-      <a href="/login/employee">Employee</a>
-    </details>
+<body class="home-page" id="top">
+
+  <!-- ==================== STICKY HEADER ==================== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand-link" href="#top" aria-label="Runwork Home">
+        <img src="/images/logos/runwork-logo.jpg" alt="Runwork" class="brand-logo"/>
+      </a>
+
+      <nav class="main-nav" aria-label="Main Navigation">
+        <a href="#top" class="nav-link active">Home</a>
+        <a href="#products" class="nav-link">Products</a>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#plans" class="nav-link">Plans</a>
+        <a href="#testimonials" class="nav-link">Testimonials</a>
+        <a href="#about" class="nav-link">About Us</a>
+      </nav>
+
+      <div class="header-actions">
+        <details class="login-dropdown">
+          <summary class="login-btn">
+            <span>Login</span>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="login-menu">
+            <a href="/login/superadmin" class="login-item">
+              <span class="role-badge superadmin">SA</span>
+              <div>
+                <strong>Super Admin</strong>
+                <small>Platform control & oversight</small>
+              </div>
+            </a>
+            <a href="/login/client-admin" class="login-item">
+              <span class="role-badge clientadmin">CA</span>
+              <div>
+                <strong>Client Admin</strong>
+                <small>Company desk management</small>
+              </div>
+            </a>
+            <a href="/login/admin" class="login-item">
+              <span class="role-badge admin">AD</span>
+              <div>
+                <strong>Admin Desk</strong>
+                <small>HR operations & approvals</small>
+              </div>
+            </a>
+            <a href="/login/employee" class="login-item">
+              <span class="role-badge employee">EM</span>
+              <div>
+                <strong>Employee Desk</strong>
+                <small>Attendance, leave & vault</small>
+              </div>
+            </a>
+          </div>
+        </details>
+        <a class="btn btn-primary" href="/register">Start Free Trial</a>
+      </div>
+    </div>
   </header>
 
-  <main id="top">
-    <section class="hero">
-      <p class="eyebrow">Runwork EWFS · Enterprise Workflow System</p>
-      <h1>Manage Work Smarter and<br/>Keep Your Team Aligned</h1>
-      <p class="lede">Runwork helps teams stay aligned, meet deadlines, and turn everyday HR work into simple, actionable steps.</p>
-      <div class="cta">
-        <a class="btn solid" href="/register">Start Free Trial</a>
-        <a class="btn ghost" href="#contact">Contact Sales</a>
-      </div>
-      <article class="board" aria-label="Business admin panel">
-        <header><strong>Runwork</strong><span>Welcome back</span><span class="chip">Search the desk</span></header>
-        <div class="board-grid">
-          <aside>
-            <p>Menu</p>
-            <span class="on">Dashboard</span><span>Tasks</span><span>People</span><span>Calendar</span><span>Reports</span><span>Messages</span>
-          </aside>
-          <div>
-            <div class="metrics">
-              <article><b id="stat-people">—</b><small>People on the desk</small></article>
-              <article><b>82%</b><small>Tasks on time</small></article>
-              <article><b id="stat-rating">4.8</b><small>Desk score</small></article>
-              <article><b id="stat-companies">—</b><small>Companies</small></article>
+  <main>
+    <!-- ==================== PAGE 1 | INTRODUCTION & PRODUCT OVERVIEW ==================== -->
+    <section class="hero-section">
+      <div class="container">
+        <div class="hero-header">
+          <div class="eyebrow-pill">
+            <span class="pulse-dot"></span>
+            PAGE 1 | INTRODUCTION &amp; PRODUCT OVERVIEW
+          </div>
+          <h1 class="hero-title">Manage Work Smarter and<br/><span class="gradient-text">Keep Your Team Aligned.</span></h1>
+          <h2 class="hero-subtitle">Introducing Runwork EWFS – Enterprise Workflow System.</h2>
+          <p class="hero-description">
+            Runwork EWFS brings essential business and workforce functions together in one organised platform. From HR operations and employee management to business workflows, payroll, assets and administrative activities, Runwork helps businesses manage their operations with greater efficiency, clarity and control.
+          </p>
+        </div>
+
+        <!-- 7 Core HR Pillars Grid with Hover Popup Notifications & Explanation Notes -->
+        <div class="pillars-instruction">
+          <span class="instruction-icon">💡</span>
+          <span><strong>Interactive Guide:</strong> Hover or drag over any option below to view its popup notification and detailed explanation notes. Click any card for the complete operational breakdown.</span>
+        </div>
+
+        <div class="pillars-grid" aria-label="Essential Workforce Functions">
+          <!-- 1. Core HR Management -->
+          <article class="pillar-card" tabindex="0" role="button" aria-haspopup="dialog" data-pillar="core-hr">
+            <div class="pillar-header-row">
+              <div class="pillar-icon core-hr">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <span class="hover-inspect-badge">Hover for Notes ▾</span>
             </div>
-            <div class="status-bars">
-              <p>Task status</p>
-              <span style="--w:67%">In progress 67%</span>
-              <span style="--w:24%">Waiting 24%</span>
-              <span style="--w:9%">Overdue 9%</span>
+            <h3>Core HR Management</h3>
+            <p>Organise essential human resource activities.</p>
+
+            <!-- Popup Notification Card -->
+            <div class="pillar-popup" role="tooltip">
+              <div class="popup-notch"></div>
+              <div class="popup-topbar">
+                <span class="popup-notify-badge">🔔 POPUP NOTIFICATION</span>
+                <span class="popup-category">Master Data &amp; Hierarchy</span>
+              </div>
+              <h4 class="popup-title">Core HR Management</h4>
+              <p class="popup-summary">Organise essential human resource activities and centralized company structure.</p>
+              
+              <div class="popup-notes-section">
+                <div class="popup-notes-heading">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  <strong>Explanation Notes</strong>
+                </div>
+                <ul class="popup-notes-list">
+                  <li><strong>Centralized Master Database:</strong> Secure registry for employee profiles, department trees, designations, and job bands.</li>
+                  <li><strong>Lifecycle Governance:</strong> Streamlined management from recruitment handoff, onboarding, and probation to confirmations and exit settlements.</li>
+                  <li><strong>Digital Document Vault:</strong> Secure cloud archiving of signed contracts, KYC records, tax forms, and service agreements.</li>
+                  <li><strong>Hierarchy &amp; Branch Mapping:</strong> Multi-location governance with reporting manager chains and multi-tier approval delegation.</li>
+                  <li><strong>Statutory Registers:</strong> Automated compilation of employee registers and compliance documentation ready for audit inspection.</li>
+                </ul>
+              </div>
+
+              <div class="popup-pills-row">
+                <span class="pop-pill">✓ 100% Audit Ready</span>
+                <span class="pop-pill">✓ Role-Based Access</span>
+                <span class="pop-pill">✓ Real-time Sync</span>
+              </div>
+              <div class="popup-action-hint">Click card to open full module details ↗</div>
+            </div>
+          </article>
+
+          <!-- 2. Payroll Management -->
+          <article class="pillar-card" tabindex="0" role="button" aria-haspopup="dialog" data-pillar="payroll">
+            <div class="pillar-header-row">
+              <div class="pillar-icon payroll">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><path d="M12 14v4"/><path d="M10 16h4"/></svg>
+              </div>
+              <span class="hover-inspect-badge">Hover for Notes ▾</span>
+            </div>
+            <h3>Payroll Management</h3>
+            <p>Manage salary and payroll-related processes.</p>
+
+            <!-- Popup Notification Card -->
+            <div class="pillar-popup" role="tooltip">
+              <div class="popup-notch"></div>
+              <div class="popup-topbar">
+                <span class="popup-notify-badge">🔔 POPUP NOTIFICATION</span>
+                <span class="popup-category">Compensation &amp; Statutory</span>
+              </div>
+              <h4 class="popup-title">Payroll Management Suite</h4>
+              <p class="popup-summary">Manage salary and payroll-related processes with automated compliance.</p>
+              
+              <div class="popup-notes-section">
+                <div class="popup-notes-heading">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  <strong>Explanation Notes</strong>
+                </div>
+                <ul class="popup-notes-list">
+                  <li><strong>Automated Salary Computation:</strong> Accurate processing of basic pay, allowances, overtime wages, shift premiums, and net disbursements.</li>
+                  <li><strong>Statutory Compliance Engine:</strong> Automated calculations for Provident Fund (PF), ESI, Professional Tax (PT), and TDS/income tax slabs.</li>
+                  <li><strong>Direct Attendance Sync:</strong> Real-time integration with biometric punches, QR scans, leave approvals, and loss-of-pay (LOP).</li>
+                  <li><strong>Encrypted Payslip Distribution:</strong> One-click generation and instant distribution of password-protected digital payslips to employee desks.</li>
+                  <li><strong>Reimbursement &amp; Claims:</strong> Transparent claim verification workflows for travel, food, medical bills, and festival bonuses.</li>
+                </ul>
+              </div>
+
+              <div class="popup-pills-row">
+                <span class="pop-pill">✓ Zero Math Errors</span>
+                <span class="pop-pill">✓ PF &amp; ESI Compliant</span>
+                <span class="pop-pill">✓ Bank Ready</span>
+              </div>
+              <div class="popup-action-hint">Click card to open full module details ↗</div>
+            </div>
+          </article>
+
+          <!-- 3. Asset Management -->
+          <article class="pillar-card" tabindex="0" role="button" aria-haspopup="dialog" data-pillar="asset">
+            <div class="pillar-header-row">
+              <div class="pillar-icon asset">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              </div>
+              <span class="hover-inspect-badge">Hover for Notes ▾</span>
+            </div>
+            <h3>Asset Management</h3>
+            <p>Track company assets and employee allocations.</p>
+
+            <!-- Popup Notification Card -->
+            <div class="pillar-popup" role="tooltip">
+              <div class="popup-notch"></div>
+              <div class="popup-topbar">
+                <span class="popup-notify-badge">🔔 POPUP NOTIFICATION</span>
+                <span class="popup-category">Hardware &amp; Inventory</span>
+              </div>
+              <h4 class="popup-title">Intelligent Asset Management</h4>
+              <p class="popup-summary">Track company assets, employee allocations, and full lifecycle custody.</p>
+              
+              <div class="popup-notes-section">
+                <div class="popup-notes-heading">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  <strong>Explanation Notes</strong>
+                </div>
+                <ul class="popup-notes-list">
+                  <li><strong>Digital Asset Registry:</strong> Comprehensive catalog of IT equipment, laptops, mobile devices, SIMs, tools, and company vehicles.</li>
+                  <li><strong>Custody &amp; Handover Sign-Offs:</strong> Digital signature acknowledgements upon asset assignment with serial number and condition tracking.</li>
+                  <li><strong>Allocation Visibility:</strong> Instant live tracking of which asset is held by which employee across multi-branch and warehouse floors.</li>
+                  <li><strong>Maintenance &amp; AMC Alerts:</strong> Scheduled servicing reminders, warranty expiry alerts, and depreciation calculations.</li>
+                  <li><strong>Exit Clearance Checklists:</strong> Automated offboarding clearance ensuring zero unreturned assets prior to final settlement.</li>
+                </ul>
+              </div>
+
+              <div class="popup-pills-row">
+                <span class="pop-pill">✓ Serial Tracking</span>
+                <span class="pop-pill">✓ Zero Asset Loss</span>
+                <span class="pop-pill">✓ Warranty Alerts</span>
+              </div>
+              <div class="popup-action-hint">Click card to open full module details ↗</div>
+            </div>
+          </article>
+
+          <!-- 4. Employee Management -->
+          <article class="pillar-card" tabindex="0" role="button" aria-haspopup="dialog" data-pillar="employee">
+            <div class="pillar-header-row">
+              <div class="pillar-icon employee">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <span class="hover-inspect-badge">Hover for Notes ▾</span>
+            </div>
+            <h3>Employee Management</h3>
+            <p>Keep employee information and activities organised.</p>
+
+            <!-- Popup Notification Card -->
+            <div class="pillar-popup" role="tooltip">
+              <div class="popup-notch"></div>
+              <div class="popup-topbar">
+                <span class="popup-notify-badge">🔔 POPUP NOTIFICATION</span>
+                <span class="popup-category">Workforce Organization</span>
+              </div>
+              <h4 class="popup-title">Employee 360° Management</h4>
+              <p class="popup-summary">Keep employee information, credentials, and daily activities organised.</p>
+              
+              <div class="popup-notes-section">
+                <div class="popup-notes-heading">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  <strong>Explanation Notes</strong>
+                </div>
+                <ul class="popup-notes-list">
+                  <li><strong>360° Employee Digital Dossier:</strong> Complete view of contact details, banking info, emergency contacts, skills, and employment records.</li>
+                  <li><strong>Background Verification (BGV):</strong> Pipeline tracking for address verification, identity authentication, criminal checks, and prior job checks.</li>
+                  <li><strong>Shift &amp; Task Coordination:</strong> Seamless distribution of shift rosters, department duties, and daily priority assignments.</li>
+                  <li><strong>Self-Service Empowerment:</strong> Self-service portal for employees to view company circulars, update personal data, and check leave balance.</li>
+                  <li><strong>Recognition &amp; Disciplinary Log:</strong> Structured recording of commendations, excellence awards, warning notices, and improvement plans.</li>
+                </ul>
+              </div>
+
+              <div class="popup-pills-row">
+                <span class="pop-pill">✓ 360° Profiles</span>
+                <span class="pop-pill">✓ BGV Verified</span>
+                <span class="pop-pill">✓ Self-Service Desk</span>
+              </div>
+              <div class="popup-action-hint">Click card to open full module details ↗</div>
+            </div>
+          </article>
+
+          <!-- 5. Workforce Data & Analytics -->
+          <article class="pillar-card" tabindex="0" role="button" aria-haspopup="dialog" data-pillar="analytics">
+            <div class="pillar-header-row">
+              <div class="pillar-icon analytics">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              </div>
+              <span class="hover-inspect-badge">Hover for Notes ▾</span>
+            </div>
+            <h3>Workforce Data &amp; Analytics</h3>
+            <p>Bring workforce information together for better visibility.</p>
+
+            <!-- Popup Notification Card -->
+            <div class="pillar-popup" role="tooltip">
+              <div class="popup-notch"></div>
+              <div class="popup-topbar">
+                <span class="popup-notify-badge">🔔 POPUP NOTIFICATION</span>
+                <span class="popup-category">Intelligence &amp; MIS</span>
+              </div>
+              <h4 class="popup-title">Workforce Data &amp; Analytics</h4>
+              <p class="popup-summary">Bring workforce information together for actionable operational visibility.</p>
+              
+              <div class="popup-notes-section">
+                <div class="popup-notes-heading">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  <strong>Explanation Notes</strong>
+                </div>
+                <ul class="popup-notes-list">
+                  <li><strong>Live Headcount Dashboards:</strong> Real-time counts of active, on-leave, shift-deployed, and contract staff across all locations.</li>
+                  <li><strong>Attendance &amp; Punctuality Heatmaps:</strong> Visual patterns of on-time check-ins, frequent tardiness, shift coverage, and overtime cost.</li>
+                  <li><strong>Retention &amp; Attrition Signals:</strong> Early indicator analytics identifying high-turnover departments and tenure milestones.</li>
+                  <li><strong>Multi-Branch Benchmarking:</strong> Comparative performance metrics between different factories, warehouses, and client branches.</li>
+                  <li><strong>Exportable Compliance Reports:</strong> One-click generation of statutory attendance sheets, payroll summaries, and audit packs in Excel &amp; PDF.</li>
+                </ul>
+              </div>
+
+              <div class="popup-pills-row">
+                <span class="pop-pill">✓ Real-time MIS</span>
+                <span class="pop-pill">✓ Trend Heatmaps</span>
+                <span class="pop-pill">✓ 1-Click Export</span>
+              </div>
+              <div class="popup-action-hint">Click card to open full module details ↗</div>
+            </div>
+          </article>
+
+          <!-- 6. Policy Implementation -->
+          <article class="pillar-card" tabindex="0" role="button" aria-haspopup="dialog" data-pillar="policy">
+            <div class="pillar-header-row">
+              <div class="pillar-icon policy">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              </div>
+              <span class="hover-inspect-badge">Hover for Notes ▾</span>
+            </div>
+            <h3>Policy Implementation</h3>
+            <p>Publish policies and manage employee acknowledgements.</p>
+
+            <!-- Popup Notification Card -->
+            <div class="pillar-popup" role="tooltip">
+              <div class="popup-notch"></div>
+              <div class="popup-topbar">
+                <span class="popup-notify-badge">🔔 POPUP NOTIFICATION</span>
+                <span class="popup-category">Governance &amp; POSH</span>
+              </div>
+              <h4 class="popup-title">Policy Implementation &amp; Compliance</h4>
+              <p class="popup-summary">Publish enterprise policies and track employee acknowledgements in real time.</p>
+              
+              <div class="popup-notes-section">
+                <div class="popup-notes-heading">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  <strong>Explanation Notes</strong>
+                </div>
+                <ul class="popup-notes-list">
+                  <li><strong>Centralized Policy Repository:</strong> Distribute employee handbooks, workplace safety standards, and code of conduct manuals.</li>
+                  <li><strong>Mandatory Read &amp; Sign:</strong> Enforce digital acknowledgements with automated time-stamped confirmation records.</li>
+                  <li><strong>Version &amp; Amendment History:</strong> Maintain version-controlled archives with automatic employee notifications when updates occur.</li>
+                  <li><strong>POSH &amp; Grievance Redressal:</strong> Dedicated confidential filing, internal committee workflows, and incident tracking.</li>
+                  <li><strong>Real-time Compliance Scorecards:</strong> Instant visibility into acknowledgment percentages by department, branch, and designation.</li>
+                </ul>
+              </div>
+
+              <div class="popup-pills-row">
+                <span class="pop-pill">✓ Digital Sign-Off</span>
+                <span class="pop-pill">✓ POSH Governance</span>
+                <span class="pop-pill">✓ Version Tracking</span>
+              </div>
+              <div class="popup-action-hint">Click card to open full module details ↗</div>
+            </div>
+          </article>
+
+          <!-- 7. Employee Welfare & Benefits Management -->
+          <article class="pillar-card featured-pillar" tabindex="0" role="button" aria-haspopup="dialog" data-pillar="welfare">
+            <div class="pillar-header-row">
+              <div class="pillar-icon welfare">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </div>
+              <span class="hover-inspect-badge">Hover for Notes ▾</span>
+            </div>
+            <h3>Employee Welfare &amp; Benefits Management</h3>
+            <p>Present employee welfare services and benefits.</p>
+
+            <!-- Popup Notification Card -->
+            <div class="pillar-popup" role="tooltip">
+              <div class="popup-notch"></div>
+              <div class="popup-topbar">
+                <span class="popup-notify-badge">🔔 POPUP NOTIFICATION</span>
+                <span class="popup-category">Wellness &amp; Corporate Perks</span>
+              </div>
+              <h4 class="popup-title">Employee Welfare &amp; Benefits</h4>
+              <p class="popup-summary">Present employee welfare programs, medical insurance, and supportive benefits.</p>
+              
+              <div class="popup-notes-section">
+                <div class="popup-notes-heading">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  <strong>Explanation Notes</strong>
+                </div>
+                <ul class="popup-notes-list">
+                  <li><strong>Group Health &amp; Accidental Insurance:</strong> Oversee mediclaim enrollments, policy card downloads, and medical claim assistance.</li>
+                  <li><strong>Employee Assistance Programs (EAP):</strong> Wellness workshops, occupational health initiatives, and confidential counseling support.</li>
+                  <li><strong>Perks &amp; Subsidies Administration:</strong> Digital management of food coupons, transport subsidies, and festive employee benefits.</li>
+                  <li><strong>Emergency Relief Workflows:</strong> Rapid disbursement workflows for emergency advances, benevolent funds, and compassionate aid.</li>
+                  <li><strong>Employee Pulse &amp; Satisfaction:</strong> Regular engagement surveys measuring workplace morale, safety satisfaction, and benefits feedback.</li>
+                </ul>
+              </div>
+
+              <div class="popup-pills-row">
+                <span class="pop-pill">✓ Health &amp; EAP</span>
+                <span class="pop-pill">✓ Mobile Requests</span>
+                <span class="pop-pill">✓ Morale Tracking</span>
+              </div>
+              <div class="popup-action-hint">Click card to open full module details ↗</div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Unified Platform Showcase -->
+        <div class="unified-platform" id="products">
+          <div class="section-badge-center">
+            <span class="badge-tag">Unified Control</span>
+            <h2 class="section-title">On One Unified Platform.</h2>
+            <p class="section-sub">Business Admin Panel – movable information and action dashboard</p>
+          </div>
+
+          <!-- Business Admin Panel Mockup -->
+          <article class="admin-board" aria-label="Business Admin Panel Dashboard Mockup">
+            <header class="board-topbar">
+              <div class="board-brand">
+                <span class="board-dot"></span>
+                <strong>Runwork EWFS</strong>
+                <span class="board-subtag">Business Admin Panel</span>
+              </div>
+              <div class="board-search">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span>Search desk, employees, branches, policies...</span>
+              </div>
+              <div class="board-actions">
+                <span class="board-pill live-pill">● System Live</span>
+                <span class="board-user">Welcome back, Admin</span>
+              </div>
+            </header>
+
+            <div class="board-layout">
+              <aside class="board-nav">
+                <div class="nav-group-title">Navigation</div>
+                <button class="bnav-item active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Dashboard</button>
+                <button class="bnav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Tasks</button>
+                <button class="bnav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> People</button>
+                <button class="bnav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Calendar</button>
+                <button class="bnav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Reports</button>
+                <button class="bnav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages</button>
+              </aside>
+
+              <div class="board-main">
+                <div class="metrics-row">
+                  <article class="metric-box">
+                    <span class="metric-label">People on the desk</span>
+                    <strong class="metric-val" id="stat-people">1,248</strong>
+                    <span class="metric-trend text-good">↑ Active &amp; Verified</span>
+                  </article>
+                  <article class="metric-box">
+                    <span class="metric-label">Tasks on time</span>
+                    <strong class="metric-val">82%</strong>
+                    <span class="metric-trend text-good">↑ Target 80%</span>
+                  </article>
+                  <article class="metric-box">
+                    <span class="metric-label">Desk score</span>
+                    <strong class="metric-val" id="stat-rating">4.8</strong>
+                    <span class="metric-trend stars-gold">★★★★★ Excellence</span>
+                  </article>
+                  <article class="metric-box">
+                    <span class="metric-label">Companies</span>
+                    <strong class="metric-val" id="stat-companies">42</strong>
+                    <span class="metric-trend text-info">Unified Operations</span>
+                  </article>
+                </div>
+
+                <div class="board-content-split">
+                  <div class="task-bars-card">
+                    <div class="card-title-row">
+                      <h4>Task Status Overview</h4>
+                      <span class="chip-sm">Live Sync</span>
+                    </div>
+                    <div class="status-bar-item">
+                      <div class="bar-labels">
+                        <span>In progress</span>
+                        <strong>67%</strong>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill bar-progress" style="width: 67%;"></div>
+                      </div>
+                    </div>
+                    <div class="status-bar-item">
+                      <div class="bar-labels">
+                        <span>Waiting / Approvals</span>
+                        <strong>24%</strong>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill bar-waiting" style="width: 24%;"></div>
+                      </div>
+                    </div>
+                    <div class="status-bar-item">
+                      <div class="bar-labels">
+                        <span>Overdue</span>
+                        <strong>9%</strong>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill bar-overdue" style="width: 9%;"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="donut-card">
+                    <h4>Task Priority</h4>
+                    <div class="donut-chart-wrap">
+                      <div class="donut-ring">
+                        <div class="donut-core">
+                          <strong>Live</strong>
+                          <small>Priority</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="donut-legend">
+                      <span><i class="dot high"></i> High</span>
+                      <span><i class="dot med"></i> Med</span>
+                      <span><i class="dot norm"></i> Norm</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="center-cta-wrap">
+            <a class="btn btn-primary btn-lg" href="#features">
+              Explore Runwork EWFS
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Split Section: Modern HR Management & Demo Enquiry Form -->
+        <div class="hero-split-section" id="contact">
+          <div class="split-col-info">
+            <span class="badge-tag">Effortless Operations</span>
+            <h2 class="split-heading">Modern HR Management,<br/>Made Effortless.</h2>
+            <p class="split-lead">
+              A user-friendly workforce and HR management solution, thoughtfully designed for businesses and the people who drive them.
+            </p>
+            <p class="split-body">
+              Runwork simplifies everyday HR activities, streamlines workforce operations and brings essential employee information and business processes together.
+            </p>
+
+            <div class="split-buttons">
+              <a class="btn btn-outline" href="#features">Discover Our Solutions</a>
+              <a class="btn btn-primary" href="/register">Create a Business Admin Account</a>
+            </div>
+
+            <!-- Moving Authorised Customer Logos Marquee -->
+            <div class="logos-ticker-wrapper">
+              <div class="ticker-header">
+                <h3>Registered Company Logos</h3>
+                <p>Moving authorised customer logos</p>
+              </div>
+              <div class="marquee-container" aria-label="Moving authorised customer logos">
+                <div class="marquee-track">
+                  <!-- First set -->
+                  <div class="marquee-logo-card">
+                    <img src="/images/logos/vibe-summit.jpg" alt="VIBE Summit" title="Vital Innovation & Business Excellence"/>
+                  </div>
+                  <div class="marquee-logo-card">
+                    <img src="/images/logos/cbn-network.jpg" alt="CBN Corporate Business Network" title="Corporate Business Network"/>
+                  </div>
+                  <div class="marquee-logo-card">
+                    <img src="/images/logos/great-career-opportunity.png" alt="Great Career Opportunity Vision 2030" title="Great Career Opportunity"/>
+                  </div>
+                  <div class="marquee-logo-card">
+                    <img src="/images/logos/allied-csr.jpg" alt="Allied-CSR Union" title="Allied-Corporate Social Responsibility Union"/>
+                  </div>
+                  <div class="marquee-logo-card">
+                    <img src="/images/logos/go-flexi.jpg" alt="Go Flexi" title="Choose Beyond The Plan"/>
+                  </div>
+                  <!-- Duplicate set for seamless infinite scroll -->
+                  <div class="marquee-logo-card">
+                    <img src="/images/logos/vibe-summit.jpg" alt="VIBE Summit" title="Vital Innovation & Business Excellence"/>
+                  </div>
+                  <div class="marquee-logo-card">
+                    <img src="/images/logos/cbn-network.jpg" alt="CBN Corporate Business Network" title="Corporate Business Network"/>
+                  </div>
+                  <div class="marquee-logo-card">
+                    <img src="/images/logos/great-career-opportunity.png" alt="Great Career Opportunity Vision 2030" title="Great Career Opportunity"/>
+                  </div>
+                  <div class="marquee-logo-card">
+                    <img src="/images/logos/allied-csr.jpg" alt="Allied-CSR Union" title="Allied-Corporate Social Responsibility Union"/>
+                  </div>
+                  <div class="marquee-logo-card">
+                    <img src="/images/logos/go-flexi.jpg" alt="Go Flexi" title="Choose Beyond The Plan"/>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="donut"><span>Task priority</span><strong>Live</strong></div>
-        </div>
-      </article>
-    </section>
 
-    <section id="features" class="band">
-      <div class="effort">
-        <h2>Modern HR management made effortless</h2>
-        <p>Your employee record, payroll card, and company policy live in one place.</p>
-        <a class="btn solid" href="/register">Try Runwork for 15 days</a>
-        <p class="stars">★★★★★ <span id="hiring-rating">4.8</span> from company scorecards</p>
-      </div>
-      <div class="mini-board">
-        <p>Workforce snapshot</p>
-        <strong>Present today</strong>
-        <div class="bars"><i></i><i></i><i></i><i></i></div>
-      </div>
-      <div class="side-cards">
-        <article><h3>Background verification</h3><p>Screening, documents, and check records.</p></article>
-        <article><h3>Enterprise policy implementation</h3><p>Publish a policy and collect acknowledgements.</p></article>
-        <article><h3>Employee 360° profile</h3><p>Identity, skills, documents, and history.</p></article>
-        <article><h3>Intelligent asset management</h3><p>Issue, return, and track every asset.</p></article>
-        <article><h3>Performance and task intelligence</h3><p>Goals, tasks, feedback, and deadlines.</p></article>
-        <article><h3>Performance communication</h3><p>Announcements and HR messages on one desk.</p></article>
-      </div>
-    </section>
+          <!-- Talk to Our Team / Demo Enquiry Form -->
+          <div class="split-col-form">
+            <div class="form-card">
+              <div class="form-header">
+                <span class="badge-tag-alt">Direct Assistance</span>
+                <h3>Talk to Our Team</h3>
+                <p class="form-sub">Demo Enquiry</p>
+              </div>
 
-    <section class="logos" aria-label="Teams using the desk">
-      <span>Nexus</span><span>Zenith</span><span>Apex</span><span>Harbor</span><span>Runwork</span><span>S1 HR</span>
-    </section>
+              <form id="demo-form" class="clean-form">
+                <div class="form-group">
+                  <label for="demo-company">Company Name</label>
+                  <input id="demo-company" name="companyName" type="text" required placeholder="e.g. Acme Industries Pvt Ltd"/>
+                </div>
 
-    <section id="pricing" class="pricing">
-      <article class="price">
-        <p>Small business</p><h3>For growing teams</h3>
-        <ul data-plans="small"></ul>
-        <a href="/register">Explore plan</a>
-      </article>
-      <article class="price">
-        <p>Medium business</p><h3>For supporting teams</h3>
-        <ul data-plans="medium"></ul>
-        <a href="/register">Explore plan</a>
-      </article>
-      <article class="price">
-        <p>Large enterprise</p><h3>For complex organisations</h3>
-        <ul data-plans="large"></ul>
-        <a href="/register">Explore plan</a>
-      </article>
-      <article class="price">
-        <p>Warehouse</p><h3>For operational teams</h3>
-        <ul data-plans="warehouse"></ul>
-        <a href="/register">Explore plan</a>
-      </article>
-      <aside class="industries">
-        <h3>Featured industries</h3>
-        <ul>
-          <li>Healthcare</li><li>Facility and security</li><li>Public administration</li><li>Petro transport</li>
-          <li>Real estate and logistics</li><li>Construction</li><li>Technology and IT</li><li>Bank and finance</li>
-          <li>Manufacturing</li><li>Energy and mining</li>
-        </ul>
-      </aside>
-    </section>
+                <div class="form-group">
+                  <label for="demo-contact">Contact Person Name</label>
+                  <input id="demo-contact" name="contactName" type="text" required placeholder="e.g. Rajesh Kumar"/>
+                </div>
 
-    <section class="seamless">
-      <p class="pill">Time, payroll, and attendance</p>
-      <h2>Your Entire Workforce on One Seamless Board</h2>
-      <p>Onboard talent, assign work, and celebrate wins in one secure workspace.</p>
-      <a class="btn solid" href="/register">Start Free Trial</a>
-      <div class="phones">
-        <article><h3>Employee service options</h3><p>Leave, payslips, and benefits from the people desk.</p><ul><li>Apply for leave</li><li>Request payslip</li><li>Benefits</li></ul></article>
-        <article><h3>Messengers</h3><p>Connect the team through the company conversation.</p><ul><li>Notices</li><li>Team group</li><li>Approvals</li></ul></article>
-        <article><h3>Quick access</h3><p>Documents, policies, and pay in one click.</p><ul><li>My calendar</li><li>To-do list</li><li>Downloads</li></ul></article>
-      </div>
-    </section>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="demo-phone">Mobile Number</label>
+                    <input id="demo-phone" name="phone" type="tel" required placeholder="+91 98765 43210"/>
+                  </div>
+                  <div class="form-group">
+                    <label for="demo-email">Official Email ID</label>
+                    <input id="demo-email" name="email" type="email" required placeholder="name@company.com"/>
+                  </div>
+                </div>
 
-    <section id="about" class="designing">
-      <div>
-        <h2>We’re designing a new way to do business</h2>
-        <p>Approvals, attendance, and payroll move between the employee, the company admin, and the client admin without leaving the desk.</p>
-        <div class="nodes">
-          <span>Employee</span><span>Company admin</span><span>Client admin</span><span>Super admin</span>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="demo-state">State</label>
+                    <input id="demo-state" name="state" type="text" required placeholder="e.g. Tamil Nadu, Maharashtra"/>
+                  </div>
+                  <div class="form-group">
+                    <label for="demo-lang">Preferred Language</label>
+                    <select id="demo-lang" name="language">
+                      <option value="English">English</option>
+                      <option value="Hindi">Hindi</option>
+                      <option value="Tamil">Tamil</option>
+                      <option value="Telugu">Telugu</option>
+                      <option value="Kannada">Kannada</option>
+                      <option value="Malayalam">Malayalam</option>
+                      <option value="Marathi">Marathi</option>
+                      <option value="Gujarati">Gujarati</option>
+                      <option value="Bengali">Bengali</option>
+                    </select>
+                  </div>
+                </div>
+
+                <p id="demo-note" class="form-notification" hidden></p>
+
+                <button class="btn btn-primary btn-block" type="submit">
+                  Request a Demo
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
-      <form id="news-form" class="news-card">
-        <p class="eyebrow">Newsletter</p>
-        <h3>Growth tip: work smarter, not harder</h3>
-        <p>One update when the desk changes. No card number is collected here.</p>
-        <label>Email address<input name="email" type="email" required placeholder="name@company.com"/></label>
-        <button class="btn solid" type="submit">Sign up</button>
-        <p id="news-note" class="form-error" hidden></p>
-      </form>
     </section>
 
-    <section class="services">
-      <h2>See our all services</h2>
-      <div class="service-grid">
-        <article><h3>Time attendance tracker</h3><p>Manual punch in and punch out, plus QR and ID card scans.</p></article>
-        <article><h3>Smart employee onboarding</h3><p>Joining, documents, and the first day on one record.</p></article>
-        <article><h3>Performance review manager</h3><p>Goals, reviews, and feedback with a clear rating.</p></article>
-        <article><h3>Automated policy updates</h3><p>Publish a policy and watch acknowledgements come in.</p></article>
-        <article><h3>Payroll management suite</h3><p>Salary cards, runs, payslips, and payroll queries.</p></article>
-        <article><h3>Team engagement tools</h3><p>Messages, notices, and the company conversation.</p></article>
+    <!-- ==================== PAGE 2 | PLANS & INDUSTRIES ==================== -->
+    <section class="plans-section" id="plans">
+      <div class="container">
+        <div class="section-title-wrap">
+          <span class="badge-tag">Deployment Tiers</span>
+          <h2 class="section-title">Explore Our Plans</h2>
+          <p class="section-sub">Scalable solutions tailored to simplify workforce operations at every stage.</p>
+        </div>
+
+        <div class="plans-grid">
+          <!-- Small Business -->
+          <article class="plan-card">
+            <div class="plan-header">
+              <span class="plan-tier-label">Essential</span>
+              <h3>Small Business</h3>
+              <p class="plan-tagline">Simplify everyday workforce operations.</p>
+            </div>
+            <div class="plan-body">
+              <ul class="plan-features" data-plans="small">
+                <li>Core employee directory &amp; profiles</li>
+                <li>Digital attendance tracking &amp; records</li>
+                <li>Self-service leave management</li>
+                <li>Standard payslip generation</li>
+                <li>Direct company policy distribution</li>
+              </ul>
+            </div>
+            <div class="plan-footer">
+              <a class="btn btn-outline btn-block" href="/register">Explore Plan</a>
+            </div>
+          </article>
+
+          <!-- Medium Business -->
+          <article class="plan-card highlighted-plan">
+            <div class="popular-ribbon">Most Flexible</div>
+            <div class="plan-header">
+              <span class="plan-tier-label">Growth</span>
+              <h3>Medium Business</h3>
+              <p class="plan-tagline">Manage growing teams and processes.</p>
+            </div>
+            <div class="plan-body">
+              <ul class="plan-features" data-plans="medium">
+                <li>Multi-department &amp; team management</li>
+                <li>Manager approval workflows</li>
+                <li>Performance reviews &amp; feedback</li>
+                <li>Asset assignment &amp; lifecycle tracking</li>
+                <li>Compliance &amp; policy acknowledgements</li>
+              </ul>
+            </div>
+            <div class="plan-footer">
+              <a class="btn btn-primary btn-block" href="/register">Explore Plan</a>
+            </div>
+          </article>
+
+          <!-- Large Business -->
+          <article class="plan-card">
+            <div class="plan-header">
+              <span class="plan-tier-label">Enterprise</span>
+              <h3>Large Business</h3>
+              <p class="plan-tagline">Coordinate enterprise-wide operations.</p>
+            </div>
+            <div class="plan-body">
+              <ul class="plan-features" data-plans="large">
+                <li>Multi-branch &amp; client desk governance</li>
+                <li>Advanced workforce data &amp; analytics</li>
+                <li>Granular role-based security &amp; audit</li>
+                <li>Automated payroll &amp; statutory compliance</li>
+                <li>Dedicated support &amp; custom workflows</li>
+              </ul>
+            </div>
+            <div class="plan-footer">
+              <a class="btn btn-outline btn-block" href="/register">Explore Plan</a>
+            </div>
+          </article>
+
+          <!-- Warehouse -->
+          <article class="plan-card">
+            <div class="plan-header">
+              <span class="plan-tier-label">Operations</span>
+              <h3>Warehouse</h3>
+              <p class="plan-tagline">Manage shifts, attendance and workforce deployment.</p>
+            </div>
+            <div class="plan-body">
+              <ul class="plan-features" data-plans="warehouse">
+                <li>Dynamic shift rosters &amp; rotation</li>
+                <li>QR code &amp; biometric mobile check-ins</li>
+                <li>Overtime calculation &amp; shift swaps</li>
+                <li>On-floor real-time deployment tracking</li>
+                <li>Rapid workforce verification &amp; onboarding</li>
+              </ul>
+            </div>
+            <div class="plan-footer">
+              <a class="btn btn-outline btn-block" href="/register">Explore Plan</a>
+            </div>
+          </article>
+        </div>
+
+        <!-- Serving Multiple Industries -->
+        <div class="industries-card">
+          <div class="industries-header">
+            <h3>Serving Multiple Industries</h3>
+            <p>Engineered for high-compliance and shift-intensive industrial workflows.</p>
+          </div>
+          <div class="industries-tags">
+            <span class="ind-tag"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"/><path d="M5 20V8l5 4V8l5 4V4h5v16"/></svg> Manufacturing</span>
+            <span class="ind-tag"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Logistics</span>
+            <span class="ind-tag"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg> Warehousing</span>
+            <span class="ind-tag"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Retail</span>
+            <span class="ind-tag"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Security</span>
+            <span class="ind-tag"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg> Facility Management</span>
+            <span class="ind-tag"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg> Staffing</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="showcase">
-      <div>
-        <h2>Showcase your strengths</h2>
-        <p>We combine a clear desk with the records HR teams already keep, so the work stays with the right person.</p>
-      </div>
-      <div class="quotes">
-        <article><p class="stars">★★★★★ 4.8</p><p>Attendance, leave, and pay sit on the same employee card.</p><strong>People desk</strong></article>
-        <article><p class="stars">★★★★★ 4.8</p><p>The company admin and the client admin share employee approvals.</p><strong>Company desk</strong></article>
-        <article><p class="stars">★★★★★ 4.8</p><p>A subscription starts only after the client admin chooses a plan and a payment method.</p><strong>Client admin</strong></article>
+    <!-- ==================== PAGE 3 | RUNWORK ONE & FEATURE DETAILS ==================== -->
+    <section class="runwork-one-section" id="products">
+      <div class="container">
+        <div class="section-title-wrap">
+          <div class="eyebrow-pill">PAGE 2 | RUNWORK ONE &amp; FEATURE DETAILS</div>
+          <h2 class="section-title">Your Entire Workforce on<br/><span class="gradient-text">One Seamless Platform.</span></h2>
+          <p class="section-sub">
+            Connect your people, simplify everyday activities and keep your entire workforce aligned through one convenient mobile application. From attendance and leave requests to employee documents and workplace communication, Runwork One brings essential employee services right to their fingertips.
+          </p>
+        </div>
+
+        <!-- Mobile App Visual & Actions -->
+        <div class="mobile-showcase-container">
+          <div class="mobile-mockup-frame">
+            <div class="phone-img-wrapper" id="phone-preview-wrap">
+              <img src="/images/runwork-one-phone.png" alt="Runwork One Mobile App Interface" class="phone-app-img"/>
+              <div class="phone-overlay-controls" aria-label="Quick App Screen Features">
+                <button class="phone-tile-hotspot tile-hotspot-1" type="button" data-app-feature="1" title="1. Employee Identity Key">
+                  <span class="hotspot-pulse-dot"></span>
+                  <span class="hotspot-tooltip">1. Identity Key</span>
+                </button>
+                <button class="phone-tile-hotspot tile-hotspot-2" type="button" data-app-feature="2" title="2. Business Messenger">
+                  <span class="hotspot-pulse-dot"></span>
+                  <span class="hotspot-tooltip">2. Business Messenger</span>
+                </button>
+                <button class="phone-tile-hotspot tile-hotspot-3" type="button" data-app-feature="3" title="3. Quick Document Access / Payslips">
+                  <span class="hotspot-pulse-dot"></span>
+                  <span class="hotspot-tooltip">3. Quick Documents</span>
+                </button>
+                <button class="phone-tile-hotspot tile-hotspot-4" type="button" data-app-feature="4" title="4. Smart Attendance / GPS">
+                  <span class="hotspot-pulse-dot"></span>
+                  <span class="hotspot-tooltip">4. Smart Attendance</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mobile-cta-actions">
+            <div class="actions-box">
+              <span class="badge-tag">Self-Service at Fingertips</span>
+              <h3>Runwork One Mobile Application</h3>
+              <p>Download the official mobile app for real-time mobile punch marking, digital ID vault, instant payslip downloads, and encrypted company messenger.</p>
+              
+              <div class="phone-feature-mini-pills">
+                <span>🔑 Digital Vault</span>
+                <span class="launch-live-messenger-btn" style="cursor:pointer;background:#eff6ff;color:#1e40af;font-weight:700;border:1px solid #bfdbfe;" title="Click to test Live Real-Time Messenger">💬 Messenger (Try Live)</span>
+                <span>📄 Instant Payslips</span>
+                <span>📍 GPS Check-in</span>
+              </div>
+
+              <div class="btn-group">
+                <a class="btn btn-primary btn-lg" href="javascript:void(0)" onclick="alert('Runwork One App: Android APK and iOS installation package is ready. Connect with your system administrator for company desk credentials.')">
+                  Download Runwork One
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </a>
+                <a class="btn btn-outline btn-lg" href="#runwork-one-features">Know More</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Runwork One Key Features Grid with Hover Popup Notifications & Explanation Notes -->
+        <div class="runwork-features-wrap" id="runwork-one-features">
+          <div class="section-badge-center">
+            <span class="badge-tag">Core Mobile Capabilities</span>
+            <h3 class="subsection-heading">Runwork One – Key Features</h3>
+            <p class="section-sub">Hover or drag across each point below to view its popup notification and explanation notes.</p>
+          </div>
+
+          <div class="key-features-grid" aria-label="Runwork One 4 Key Features">
+            <!-- 1. Employee Identity Key -->
+            <article class="key-feat-card" tabindex="0" role="button" aria-haspopup="dialog" data-feature="1" data-pillar="core-hr">
+              <div class="key-feat-header">
+                <div class="feat-num">1</div>
+                <span class="hover-inspect-badge">Hover for Notes ▾</span>
+              </div>
+              <h4>1. Employee Identity Key – Your Digital Employee Vault</h4>
+              <p>Keep employee profiles, personal information and essential documents organised in one secure digital space, making important employee records easier to access and manage.</p>
+
+              <!-- Popup Notification Card -->
+              <div class="pillar-popup" role="tooltip">
+                <div class="popup-notch"></div>
+                <div class="popup-topbar">
+                  <span class="popup-notify-badge">🔔 POPUP NOTIFICATION</span>
+                  <span class="popup-category">Digital Identity &amp; Vault</span>
+                </div>
+                <h4 class="popup-title">Employee Identity Key</h4>
+                <p class="popup-summary">Your encrypted digital employee vault with verified credentials and single-tap proof of identity.</p>
+
+                <div class="popup-notes-section">
+                  <div class="popup-notes-heading">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <strong>Explanation Notes</strong>
+                  </div>
+                  <ul class="popup-notes-list">
+                    <li><strong>Universal Digital Company Pass:</strong> Displays verified employee designation, branch code, blood group, emergency contacts, and active employment QR.</li>
+                    <li><strong>Encrypted Credential Storage:</strong> Tamper-proof cloud storage for government IDs (Aadhaar, PAN), academic records, and signed joining letters.</li>
+                    <li><strong>Self-Service Updates:</strong> Employees can directly submit requests for address changes, emergency numbers, or nominee updates with HR review.</li>
+                    <li><strong>Zero Data Leakage:</strong> Encrypted on-device biometric lock ensuring personal records are strictly protected from unauthorized view.</li>
+                  </ul>
+                </div>
+
+                <div class="popup-pills-row">
+                  <span class="pop-pill">✓ Digital ID Card</span>
+                  <span class="pop-pill">✓ Biometric Locked</span>
+                  <span class="pop-pill">✓ KYC Ready</span>
+                </div>
+                <div class="popup-action-hint">Click card to open full module details ↗</div>
+              </div>
+            </article>
+
+            <!-- 2. Business Messenger -->
+            <article class="key-feat-card" tabindex="0" role="button" aria-haspopup="dialog" data-feature="2" data-pillar="policy">
+              <div class="key-feat-header">
+                <div class="feat-num">2</div>
+                <span class="hover-inspect-badge">Hover for Notes ▾</span>
+              </div>
+              <h4>2. Business Messenger – Connect Your People</h4>
+              <p>Bring employees, HR teams and management closer through seamless workplace communication. Share important updates, exchange information and keep everyone connected.</p>
+
+              <!-- Popup Notification Card -->
+              <div class="pillar-popup" role="tooltip">
+                <div class="popup-notch"></div>
+                <div class="popup-topbar">
+                  <span class="popup-notify-badge">🔔 POPUP NOTIFICATION</span>
+                  <span class="popup-category">Workplace Communication</span>
+                </div>
+                <h4 class="popup-title">Business Messenger</h4>
+                <p class="popup-summary">Secure corporate messaging connecting on-field staff, supervisors, and HR administration.</p>
+
+                <div class="popup-notes-section">
+                  <div class="popup-notes-heading">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <strong>Explanation Notes</strong>
+                  </div>
+                  <ul class="popup-notes-list">
+                    <li><strong>Official Company Broadcasts:</strong> Instant distribution of administrative circulars, holiday calendars, and critical shift notices.</li>
+                    <li><strong>Direct HR Support Desk:</strong> Secure 1-on-1 messaging channel for employees to resolve payroll, leave, or documentation queries without delay.</li>
+                    <li><strong>Shift Swapping &amp; Team Chat:</strong> On-floor operational discussions and peer-to-peer shift swap requests with manager approvals.</li>
+                    <li><strong>Corporate Compliance Audit:</strong> Secure retention with complete administrative audit logs preserving workplace professionalism.</li>
+                  </ul>
+                </div>
+
+                <div class="popup-pills-row">
+                  <span class="pop-pill">✓ Encrypted Chat</span>
+                  <span class="pop-pill">✓ Broadcast Alerts</span>
+                  <span class="pop-pill">✓ HR Direct Desk</span>
+                </div>
+                <div class="popup-action-hint">
+                  <button type="button" class="btn btn-sm btn-primary launch-live-messenger-btn" style="width:100%;margin-top:6px;display:inline-flex;align-items:center;justify-content:center;gap:6px;">
+                    <span>💬</span> Launch Real-Time Messenger Demo
+                  </button>
+                </div>
+              </div>
+            </article>
+
+            <!-- 3. Quick Document Access -->
+            <article class="key-feat-card" tabindex="0" role="button" aria-haspopup="dialog" data-feature="3" data-pillar="payroll">
+              <div class="key-feat-header">
+                <div class="feat-num">3</div>
+                <span class="hover-inspect-badge">Hover for Notes ▾</span>
+              </div>
+              <h4>3. Quick Document Access – Everything Within Reach</h4>
+              <p>Access important employee documents, payroll statements, company policies and HR records conveniently, whenever needed.</p>
+
+              <!-- Popup Notification Card -->
+              <div class="pillar-popup" role="tooltip">
+                <div class="popup-notch"></div>
+                <div class="popup-topbar">
+                  <span class="popup-notify-badge">🔔 POPUP NOTIFICATION</span>
+                  <span class="popup-category">Document &amp; Payroll Access</span>
+                </div>
+                <h4 class="popup-title">Quick Document Access</h4>
+                <p class="popup-summary">Instant mobile access to monthly salary slips, policy handbooks, and tax worksheets.</p>
+
+                <div class="popup-notes-section">
+                  <div class="popup-notes-heading">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <strong>Explanation Notes</strong>
+                  </div>
+                  <ul class="popup-notes-list">
+                    <li><strong>1-Tap Payslip Downloads:</strong> Instant retrieval of monthly password-protected payslips with detailed earnings, PF, and deductions.</li>
+                    <li><strong>Policy &amp; Handbook Reader:</strong> Built-in mobile PDF viewer for company handbooks, safety protocols, and health insurance claim guides.</li>
+                    <li><strong>Tax Worksheets &amp; Form 16:</strong> Hassle-free access to annual tax statements, PF passbook records, and bonus letters.</li>
+                    <li><strong>Offline Availability:</strong> Frequently referenced documents remain accessible even in remote warehouse or low-connectivity areas.</li>
+                  </ul>
+                </div>
+
+                <div class="popup-pills-row">
+                  <span class="pop-pill">✓ 1-Tap PDF Slips</span>
+                  <span class="pop-pill">✓ Offline Storage</span>
+                  <span class="pop-pill">✓ Secure Reader</span>
+                </div>
+                <div class="popup-action-hint">Click card to open full module details ↗</div>
+              </div>
+            </article>
+
+            <!-- 4. Smart Attendance -->
+            <article class="key-feat-card" tabindex="0" role="button" aria-haspopup="dialog" data-feature="4" data-pillar="analytics">
+              <div class="key-feat-header">
+                <div class="feat-num">4</div>
+                <span class="hover-inspect-badge">Hover for Notes ▾</span>
+              </div>
+              <h4>4. Smart Attendance – Simple and Flexible Check-ins</h4>
+              <p>Make attendance marking easier with multiple supported check-in options, including GPS location, QR codes, biometric integration and mobile-based attendance.</p>
+
+              <!-- Popup Notification Card -->
+              <div class="pillar-popup" role="tooltip">
+                <div class="popup-notch"></div>
+                <div class="popup-topbar">
+                  <span class="popup-notify-badge">🔔 POPUP NOTIFICATION</span>
+                  <span class="popup-category">Geo-Fenced Punching</span>
+                </div>
+                <h4 class="popup-title">Smart Attendance System</h4>
+                <p class="popup-summary">Flexible, multi-mode check-in engine designed for offices, field forces, and warehouses.</p>
+
+                <div class="popup-notes-section">
+                  <div class="popup-notes-heading">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <strong>Explanation Notes</strong>
+                  </div>
+                  <ul class="popup-notes-list">
+                    <li><strong>Geo-Fenced GPS Verification:</strong> Validates mobile check-ins only when the employee is verified inside the authorized plant or office perimeter.</li>
+                    <li><strong>Dynamic QR Code Station:</strong> Rapid shift check-ins via rotating security QR codes deployed at factory entry gates.</li>
+                    <li><strong>Biometric Device Integration:</strong> Direct sync with biometric finger and facial scanners installed on shop floors.</li>
+                    <li><strong>Mobile Regularization:</strong> Submit missed-punch regularization requests with reason notes directly to reporting supervisors.</li>
+                  </ul>
+                </div>
+
+                <div class="popup-pills-row">
+                  <span class="pop-pill">✓ Geo-Fencing</span>
+                  <span class="pop-pill">✓ Dynamic QR</span>
+                  <span class="pop-pill">✓ Biometric Sync</span>
+                </div>
+                <div class="popup-action-hint">Click card to open full module details ↗</div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Quality Badges -->
+        <div class="quality-badges-strip">
+          <div class="quality-badge">
+            <span class="badge-icon">🛡️</span>
+            <strong>RELIABLE</strong>
+            <small>Enterprise uptime &amp; data integrity</small>
+          </div>
+          <div class="quality-badge">
+            <span class="badge-icon">⚡</span>
+            <strong>INTELLIGENT</strong>
+            <small>Automated rules &amp; smart workflows</small>
+          </div>
+          <div class="quality-badge">
+            <span class="badge-icon">📈</span>
+            <strong>EFFICIENT</strong>
+            <small>Frictionless operations for all desks</small>
+          </div>
+        </div>
+
+        <!-- A New Way to Manage Business -->
+        <div class="new-way-section">
+          <div class="new-way-content">
+            <span class="badge-tag">Future of Workforce Tech</span>
+            <p class="new-way-eyebrow">A New Way to Manage Business</p>
+            <h3>We Are Creating a Smarter Way to Do Business.</h3>
+            <p>
+              Business is evolving, and the way we manage people, processes and everyday operations should evolve with it. Runwork brings workforce management and business operations together through organised digital solutions that help businesses move forward with confidence.
+            </p>
+
+            <div class="connected-nodes-visual" aria-label="Connected HR Teams and Employees Flow">
+              <div class="node-pill"><span>👤</span> Employee</div>
+              <div class="node-arrow">⟷</div>
+              <div class="node-pill"><span>🏢</span> Company Admin</div>
+              <div class="node-arrow">⟷</div>
+              <div class="node-pill"><span>💼</span> Client Admin</div>
+              <div class="node-arrow">⟷</div>
+              <div class="node-pill highlight"><span>⚡</span> Super Admin</div>
+            </div>
+
+            <div class="action-wrap">
+              <a class="btn btn-primary" href="#core-features">Explore All Our Features</a>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section id="contact" class="contact">
-      <div>
-        <h2>Talk to our team</h2>
-        <p>The super admin desk receives every demo enquiry.</p>
+    <!-- ==================== PAGE 4 | DETAILED CORE FEATURES ==================== -->
+    <section class="core-features-section" id="features">
+      <div class="container">
+        <div class="section-title-wrap">
+          <span class="badge-tag">Comprehensive Capabilities</span>
+          <h2 class="section-title">Explore All Our Features</h2>
+          <p class="section-sub">End-to-end digital solutions that unify your workforce from onboarding to payroll.</p>
+        </div>
+
+        <div class="core-grid">
+          <article class="core-card">
+            <div class="core-icon icon-blue">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+            </div>
+            <h3>Smart Employee Onboarding</h3>
+            <p>Make employee onboarding simple and organised with structured joining processes, employee information collection, document management and onboarding activities.</p>
+          </article>
+
+          <article class="core-card">
+            <div class="core-icon icon-green">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            </div>
+            <h3>Business Communication</h3>
+            <p>Keep employees, HR teams and management connected through organised workplace communication, company announcements and seamless information sharing.</p>
+          </article>
+
+          <article class="core-card">
+            <div class="core-icon icon-purple">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+            </div>
+            <h3>Performance Review Management</h3>
+            <p>Organise employee performance reviews, evaluations, goals and feedback to encourage accountability, recognise achievements and support continuous improvement.</p>
+          </article>
+
+          <article class="core-card">
+            <div class="core-icon icon-orange">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <h3>Payroll Management Suite</h3>
+            <p>Simplify salary administration through organised salary information, payroll processing, payslips and essential payroll-related activities.</p>
+          </article>
+
+          <article class="core-card">
+            <div class="core-icon icon-teal">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3>Policy Implementation</h3>
+            <p>Create, publish and manage company policies, employee guidelines and compliance-related records while maintaining organised employee acknowledgements.</p>
+          </article>
+
+          <article class="core-card">
+            <div class="core-icon icon-amber">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h3>Team Engagement Tools</h3>
+            <p>Encourage employee participation through engagement activities, feedback, internal communication and better team coordination.</p>
+          </article>
+        </div>
       </div>
-      <form id="demo-form" class="sheet">
-        <label>Company name<input name="companyName" required/></label>
-        <label>Respected person<input name="contactName" required/></label>
-        <label>Mobile number<input name="phone" required/></label>
-        <label>Official mail<input name="email" type="email" required/></label>
-        <label>State<input name="state" required/></label>
-        <label>Language<select name="language"><option>English</option><option>Hindi</option><option>Tamil</option><option>Telugu</option></select></label>
-        <p id="demo-note" class="form-error" hidden></p>
-        <button class="btn solid" type="submit">Submit</button>
-      </form>
     </section>
 
-    <section id="blog" class="blog">
-      <h2>From the desk</h2>
-      <div class="service-grid">
-        <article><h3>How a punch is stored</h3><p>Manual punch in, punch out, QR, and ID card scans use the server clock.</p></article>
-        <article><h3>Who approves leave</h3><p>The employee raises it. The client admin and the company admin decide it.</p></article>
-        <article><h3>How a plan is chosen</h3><p>Small, medium, large, and warehouse plans are selected at registration.</p></article>
+    <!-- ==================== PAGE 5 | ENGAGEMENT, ENQUIRIES & COMPANY INFORMATION ==================== -->
+    <section class="engagement-section" id="engagement">
+      <div class="container">
+        <div class="section-title-wrap">
+          <div class="eyebrow-pill">PAGE 3 | ENGAGEMENT, ENQUIRIES &amp; COMPANY INFORMATION</div>
+          <h2 class="section-title">Showcase Your Strength.<br/><span class="gradient-text">Discover New Opportunities.</span></h2>
+          <p class="section-sub">
+            Bring business opportunities and talent together through organised hiring notifications. Explore available job opportunities, discover suitable positions and connect with businesses looking for the right people.
+          </p>
+        </div>
+
+        <!-- Job Vacancy / Hiring Notification Slide Rolling Carousel -->
+        <div class="vacancies-carousel-container" id="vacancies-carousel" role="region" aria-label="Job Vacancies Slide Rolling Showcase">
+          <!-- Slider Header Controls & Status -->
+          <div class="vacancies-carousel-header">
+            <div class="vacancies-status-pill">
+              <span class="live-pulse-dot"></span>
+              <span class="status-title">Live Openings</span>
+              <span class="status-counter"><strong id="vac-active-index">1</strong> of <strong>6</strong> Opportunities</span>
+            </div>
+            <div class="vacancies-controls-group">
+              <button type="button" class="vac-control-btn vac-btn-prev" id="vac-prev-btn" aria-label="Previous opportunity" title="Previous opportunity">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              </button>
+              <button type="button" class="vac-control-btn vac-btn-play" id="vac-play-toggle" aria-label="Pause slide rolling" title="Pause / Resume slide rolling">
+                <svg class="icon-pause" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+                <svg class="icon-play" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </button>
+              <button type="button" class="vac-control-btn vac-btn-next" id="vac-next-btn" aria-label="Next opportunity" title="Next opportunity">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Slide Rolling Viewport -->
+          <div class="vacancies-viewport" id="vacancies-viewport" tabindex="0" aria-live="polite">
+            <div class="vacancies-track" id="vacancies-track">
+              <!-- Card 1 -->
+              <article class="vacancy-card" data-index="0">
+                <div class="vac-header">
+                  <span class="vac-badge">Full Time</span>
+                  <span class="vac-loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Chennai / On-site</span>
+                </div>
+                <h4>HR Operations Specialist</h4>
+                <p class="vac-dept">People &amp; Operations Desk</p>
+                <p class="vac-desc">Manage employee joining workflows, document compliance, and daily attendance governance on Runwork EWFS.</p>
+                <div class="vac-footer">
+                  <span class="vac-salary">Competitive Package</span>
+                  <a href="#hiring-form" class="btn btn-sm btn-outline">Apply Now</a>
+                </div>
+              </article>
+
+              <!-- Card 2 -->
+              <article class="vacancy-card" data-index="1">
+                <div class="vac-header">
+                  <span class="vac-badge shift-badge">Shift Ops</span>
+                  <span class="vac-loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Bengaluru / Warehouse</span>
+                </div>
+                <h4>Warehouse Shift Supervisor</h4>
+                <p class="vac-dept">Logistics &amp; Supply Chain</p>
+                <p class="vac-desc">Oversee on-floor shift scheduling, QR punch-ins, overtime verification, and workforce safety compliance.</p>
+                <div class="vac-footer">
+                  <span class="vac-salary">Operations Grade</span>
+                  <a href="#hiring-form" class="btn btn-sm btn-outline">Apply Now</a>
+                </div>
+              </article>
+
+              <!-- Card 3 -->
+              <article class="vacancy-card" data-index="2">
+                <div class="vac-header">
+                  <span class="vac-badge finance-badge">Finance</span>
+                  <span class="vac-loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Mumbai / Hybrid</span>
+                </div>
+                <h4>Senior Payroll &amp; Compliance Officer</h4>
+                <p class="vac-dept">Corporate Payroll Desk</p>
+                <p class="vac-desc">Administer monthly salary runs, statutory deductions, tax worksheets, and structured employee payslip queries.</p>
+                <div class="vac-footer">
+                  <span class="vac-salary">Senior Grade</span>
+                  <a href="#hiring-form" class="btn btn-sm btn-outline">Apply Now</a>
+                </div>
+              </article>
+
+              <!-- Card 4 -->
+              <article class="vacancy-card" data-index="3">
+                <div class="vac-header">
+                  <span class="vac-badge enterprise-badge">Enterprise</span>
+                  <span class="vac-loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Gurugram / Hybrid</span>
+                </div>
+                <h4>Enterprise Solutions Consultant</h4>
+                <p class="vac-dept">Client Growth &amp; Implementation</p>
+                <p class="vac-desc">Lead enterprise deployments, coordinate biometric system rollouts, and guide HR teams on digital transformation.</p>
+                <div class="vac-footer">
+                  <span class="vac-salary">Executive Grade</span>
+                  <a href="#hiring-form" class="btn btn-sm btn-outline">Apply Now</a>
+                </div>
+              </article>
+
+              <!-- Card 5 -->
+              <article class="vacancy-card" data-index="4">
+                <div class="vac-header">
+                  <span class="vac-badge tech-badge">Technology</span>
+                  <span class="vac-loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Hyderabad / Hybrid</span>
+                </div>
+                <h4>Full Stack Product Engineer</h4>
+                <p class="vac-dept">Core Platform Engineering</p>
+                <p class="vac-desc">Architect distributed workforce databases, real-time sync pipelines, and scalable microservices for Runwork EWFS.</p>
+                <div class="vac-footer">
+                  <span class="vac-salary">Tech Band A</span>
+                  <a href="#hiring-form" class="btn btn-sm btn-outline">Apply Now</a>
+                </div>
+              </article>
+
+              <!-- Card 6 -->
+              <article class="vacancy-card" data-index="5">
+                <div class="vac-header">
+                  <span class="vac-badge people-badge">People &amp; Culture</span>
+                  <span class="vac-loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Pune / On-site</span>
+                </div>
+                <h4>Talent Acquisition Partner</h4>
+                <p class="vac-dept">Strategic Recruitment Desk</p>
+                <p class="vac-desc">Source high-caliber talent across operations, technology, and compliance functions to support fast-scaling client partners.</p>
+                <div class="vac-footer">
+                  <span class="vac-salary">Competitive Package</span>
+                  <a href="#hiring-form" class="btn btn-sm btn-outline">Apply Now</a>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <!-- Bottom Bar: Indicators & Animated Progress Bar -->
+          <div class="vacancies-carousel-footer">
+            <div class="vacancies-dots" id="vac-dots" role="tablist" aria-label="Vacancies slide selector">
+              <!-- Dynamically populated / synced dots -->
+            </div>
+            <div class="vac-rolling-indicator" title="Auto slide rolling progress">
+              <span class="rolling-text">Auto-rolling every 3.5s (Hover or drag to pause)</span>
+              <div class="vac-progress-track">
+                <div class="vac-progress-bar" id="vac-progress-bar"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer Feedback & Testimonials -->
+        <div class="testimonials-wrap" id="testimonials">
+          <div class="section-badge-center">
+            <span class="badge-tag">Proven Results</span>
+            <h3 class="section-title">Customer Feedback &amp; Testimonials</h3>
+            <p class="section-sub">Trusted Experiences. Meaningful Feedback.</p>
+            <p class="section-lead-muted">
+              We believe that better business solutions begin with understanding the people who use them. Discover customer experiences and feedback as businesses grow with Runwork.
+            </p>
+          </div>
+
+          <div class="testimonials-grid">
+            <article class="testi-card">
+              <div class="stars-row">★★★★★ <span class="score">5.0</span></div>
+              <p class="testi-text">
+                "Attendance, leave, and payroll sit on the same employee card. Managing our daily workforce operations across 3 manufacturing units has never been this seamless."
+              </p>
+              <div class="testi-author">
+                <div class="author-avatar">RK</div>
+                <div>
+                  <strong>Rajesh Kannan</strong>
+                  <small>VP Operations · Apex Manufacturing</small>
+                </div>
+              </div>
+            </article>
+
+            <article class="testi-card">
+              <div class="stars-row">★★★★★ <span class="score">4.9</span></div>
+              <p class="testi-text">
+                "The multi-branch coordination and quick document vault saved our admin teams countless hours every week. Approvals move instantly between client admin and HR desk."
+              </p>
+              <div class="testi-author">
+                <div class="author-avatar">SM</div>
+                <div>
+                  <strong>Sonia Mehta</strong>
+                  <small>Head of Human Resources · Zenith Logistics</small>
+                </div>
+              </div>
+            </article>
+
+            <article class="testi-card">
+              <div class="stars-row">★★★★★ <span class="score">4.8</span></div>
+              <p class="testi-text">
+                "Runwork One mobile app gave our on-field and warehouse employees instant access to check-ins and payslips. It has completely eliminated paperwork discrepancies."
+              </p>
+              <div class="testi-author">
+                <div class="author-avatar">VN</div>
+                <div>
+                  <strong>Vikram Nair</strong>
+                  <small>Director · Harbor Retail &amp; Facilities</small>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Application / Business Enquiry Form -->
+        <div class="enquiry-split-wrap" id="hiring-form">
+          <div class="enquiry-info-pane">
+            <span class="badge-tag">Collaboration &amp; Careers</span>
+            <h3 class="enquiry-heading">Application / Business Enquiry</h3>
+            <h4 class="enquiry-subheading">Have an Opportunity to Explore With Us?</h4>
+            <p class="enquiry-desc">
+              Whether you are interested in our solutions, business partnerships or other professional opportunities, we would be happy to hear from you.
+            </p>
+
+            <div class="enquiry-highlights">
+              <div class="eh-item">
+                <span class="eh-icon">💼</span>
+                <div>
+                  <strong>Commercial Partnerships</strong>
+                  <p>Co-present and scale enterprise solutions with S1 HR Solutions.</p>
+                </div>
+              </div>
+              <div class="eh-item">
+                <span class="eh-icon">🚀</span>
+                <div>
+                  <strong>Career Growth</strong>
+                  <p>Join our core engineering, operational, and customer delivery teams.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="enquiry-form-pane">
+            <form id="apply-form" class="clean-form-card" enctype="multipart/form-data">
+              <div class="form-group">
+                <label for="apply-name">Name</label>
+                <input id="apply-name" name="fullName" type="text" required placeholder="Enter your full name"/>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="apply-looking">Looking For</label>
+                  <input id="apply-looking" name="lookingFor" type="text" required placeholder="e.g. Business Partnership, Job Opportunity, Vendor Enquiry"/>
+                </div>
+                <div class="form-group">
+                  <label for="apply-phone">Mobile Number</label>
+                  <input id="apply-phone" name="phone" type="tel" required placeholder="+91 98765 43210"/>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="apply-doc">Upload Documents</label>
+                <div class="file-upload-wrap">
+                  <input id="apply-doc" name="documents" type="file" accept=".pdf,.doc,.docx,.jpg,.png,.xls,.xlsx"/>
+                  <small class="file-hint">Supported formats: PDF, DOC, PNG, JPG (Max 15MB)</small>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="apply-desc">Description</label>
+                <textarea id="apply-desc" name="description" rows="4" required placeholder="Tell us about your proposal, experience, or enquiry..."></textarea>
+              </div>
+
+              <p id="apply-note" class="form-notification" hidden></p>
+
+              <button class="btn btn-primary btn-block" type="submit">
+                Submit Enquiry
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Co-presenters / Partner Logos Showcase -->
+        <div class="partners-showcase-section">
+          <div class="section-badge-center">
+            <span class="badge-tag">Network &amp; Associates</span>
+            <h3 class="section-title">Co-presenters / Partner Logos</h3>
+            <p class="section-sub">Partner / associated company logos</p>
+          </div>
+
+          <div class="partner-logos-grid" aria-label="Partner and Co-presenter Companies">
+            <!-- VIBE Summit -->
+            <article class="partner-card">
+              <div class="partner-logo-box">
+                <img src="/images/logos/vibe-summit.jpg" alt="VIBE Summit - Vital Innovation &amp; Business Excellence"/>
+              </div>
+              <div class="partner-meta">
+                <strong>VIBE Summit</strong>
+                <small>Vital Innovation &amp; Business Excellence</small>
+              </div>
+            </article>
+
+            <!-- CBN -->
+            <article class="partner-card">
+              <div class="partner-logo-box">
+                <img src="/images/logos/cbn-network.jpg" alt="CBN Corporate Business Network"/>
+              </div>
+              <div class="partner-meta">
+                <strong>Corporate Business Network</strong>
+                <small>Executive Corporate Networking</small>
+              </div>
+            </article>
+
+            <!-- Great Career Opportunity -->
+            <article class="partner-card">
+              <div class="partner-logo-box">
+                <img src="/images/logos/great-career-opportunity.png" alt="Great Career Opportunity Vision 2030"/>
+              </div>
+              <div class="partner-meta">
+                <strong>Great Career Opportunity</strong>
+                <small>Vision 2030 Employment Alliance</small>
+              </div>
+            </article>
+
+            <!-- Allied CSR -->
+            <article class="partner-card">
+              <div class="partner-logo-box">
+                <img src="/images/logos/allied-csr.jpg" alt="Allied-Corporate Social Responsibility Union"/>
+              </div>
+              <div class="partner-meta">
+                <strong>Allied-CSR Union</strong>
+                <small>Corporate Social Responsibility</small>
+              </div>
+            </article>
+
+            <!-- Go Flexi -->
+            <article class="partner-card">
+              <div class="partner-logo-box">
+                <img src="/images/logos/go-flexi.jpg" alt="Go Flexi - Choose Beyond The Plan"/>
+              </div>
+              <div class="partner-meta">
+                <strong>Go Flexi</strong>
+                <small>Choose Beyond The Plan</small>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- About Us Section -->
+        <div class="about-section" id="about">
+          <div class="about-card">
+            <div class="about-content">
+              <span class="badge-tag">Company Background</span>
+              <h3 class="about-title">About Us</h3>
+              <h4 class="about-company">About S1 HR Solutions</h4>
+              <p class="about-text">
+                S1 HR Solutions is focused on developing practical business technology solutions that simplify workforce management, HR operations and everyday business activities. Through Runwork, we aim to bring people, processes and business operations together in an organised digital environment. Our vision is to help businesses work smarter, manage their workforce effectively and move towards a more connected and efficient way of working.
+              </p>
+              <div class="about-stats-strip">
+                <div>
+                  <strong>99.9%</strong>
+                  <small>System Reliability</small>
+                </div>
+                <div>
+                  <strong>100%</strong>
+                  <small>Statutory Compliance</small>
+                </div>
+                <div>
+                  <strong>Enterprise</strong>
+                  <small>Security &amp; Encryption</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section id="hiring" class="contact">
-      <div>
-        <h2>Showcase your strength</h2>
-        <p>Apply below. The super admin desk reads the enquiry.</p>
+    <!-- ==================== PAGE 6 | CLOSING BANNER & FOOTER ==================== -->
+    <section class="closing-banner">
+      <div class="container">
+        <div class="banner-inner">
+          <div class="banner-text">
+            <h2>Runwork – You Focus on Your Business.<br/><span class="gradient-banner-text">Runwork Handles the Rest.</span></h2>
+            <p>Deploy Runwork EWFS today and experience a connected, organised, and efficient workforce.</p>
+          </div>
+          <div class="banner-cta">
+            <a class="btn btn-light" href="/register">Start Free Trial</a>
+            <a class="btn btn-outline-light" href="#contact">Request a Demo</a>
+          </div>
+        </div>
       </div>
-      <form id="apply-form" class="sheet">
-        <label>Name<input name="fullName" required/></label>
-        <label>Looking for<input name="lookingFor" required/></label>
-        <label>Mobile<input name="phone" required/></label>
-        <label>Upload documents<input name="documents" type="file"/></label>
-        <label>Description<textarea name="description" rows="3" required></textarea></label>
-        <p id="apply-note" class="form-error" hidden></p>
-        <button class="btn solid" type="submit">Submit</button>
-      </form>
     </section>
   </main>
-  <footer class="foot">Runwork EWFS · Presented by S1 HR Solution · <a href="/register">Create a business admin account</a></footer>
+
+  <!-- ==================== SITE FOOTER ==================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col brand-col">
+          <a class="footer-brand" href="#top">
+            <img src="/images/logos/runwork-logo.jpg" alt="Runwork" class="footer-logo"/>
+          </a>
+          <p class="footer-about">
+            Enterprise Workflow System (EWFS) designed by S1 HR Solutions to keep your team aligned, compliant, and productive.
+          </p>
+          <p class="footer-portal-link">
+            <a href="/register" class="link-bold">Create a Business Admin Account →</a>
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4>About Us</h4>
+          <ul>
+            <li><a href="#about">About S1 HR Solutions</a></li>
+            <li><a href="#about">Our Vision &amp; Mission</a></li>
+            <li><a href="#engagement">Careers &amp; Opportunities</a></li>
+            <li><a href="#testimonials">Customer Stories</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Our Products</h4>
+          <ul>
+            <li><a href="#products">Runwork EWFS</a></li>
+            <li><a href="#runwork-one">Runwork One Mobile App</a></li>
+            <li><a href="#products">Business Admin Panel</a></li>
+            <li><a href="/login/employee">Digital Employee Vault</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Features</h4>
+          <ul>
+            <li><a href="#features">Smart Onboarding</a></li>
+            <li><a href="#features">Smart Attendance</a></li>
+            <li><a href="#features">Payroll Management Suite</a></li>
+            <li><a href="#features">Policy Implementation</a></li>
+            <li><a href="#features">Performance Review</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Plans &amp; Pricing</h4>
+          <ul>
+            <li><a href="#plans">Small Business</a></li>
+            <li><a href="#plans">Medium Business</a></li>
+            <li><a href="#plans">Large Business</a></li>
+            <li><a href="#plans">Warehouse Operations</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Legal &amp; Desk</h4>
+          <ul>
+            <li><a href="#contact">Contact Us</a></li>
+            <li><a href="#contact">Privacy Policy</a></li>
+            <li><a href="#contact">Terms &amp; Conditions</a></li>
+            <li><a href="#top">Copyright Information</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 Runwork EWFS · S1 HR Solutions. All rights reserved.</p>
+        <p class="foot-tagline">Runwork – You Focus on Your Business. Runwork Handles the Rest.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating Live Hover Toast Notification -->
+  <div id="pillar-hover-toast" class="pillar-hover-toast" aria-live="polite">
+    <div class="toast-indicator">🔔</div>
+    <div class="toast-body">
+      <strong id="toast-title">Interactive Module Inspection</strong>
+      <p id="toast-desc">Hover over any module to view its popup notification and explanation notes.</p>
+    </div>
+  </div>
+
+  <!-- Modal for Full Pillar Explanation Notes -->
+  <div id="pillar-modal" class="pillar-modal" hidden aria-modal="true" role="dialog">
+    <div class="pillar-modal-backdrop" id="pillar-modal-backdrop"></div>
+    <div class="pillar-modal-dialog">
+      <button class="pillar-modal-close" id="pillar-modal-close" aria-label="Close modal">&times;</button>
+      <div id="pillar-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Real-Time Interactive Business Messenger Modal -->
+  <div id="live-messenger-modal" class="live-messenger-modal" hidden aria-modal="true" role="dialog" aria-label="Runwork One Real-Time Messenger Demo">
+    <div class="live-messenger-backdrop" id="live-msgr-backdrop"></div>
+    <div class="live-messenger-dialog">
+      <!-- Top Bar -->
+      <div class="live-msgr-head">
+        <div class="live-msgr-brand">
+          <div class="msgr-logo-icon">💬</div>
+          <div>
+            <strong>Runwork One · Real-Time Business Messenger</strong>
+            <small class="live-pulse-text"><span class="pulse-dot-green"></span> Live communication desk active</small>
+          </div>
+        </div>
+        <div class="live-msgr-actions">
+          <a href="/login/employee" class="msgr-portal-link" target="_blank">Sign in to Desk ↗</a>
+          <button type="button" class="live-msgr-close" id="live-msgr-close" aria-label="Close Messenger">&times;</button>
+        </div>
+      </div>
+
+      <!-- Main Messenger Layout: Sidebar with User Search + Chat Area -->
+      <div class="live-msgr-body">
+        <!-- Sidebar -->
+        <div class="live-msgr-sidebar">
+          <div class="live-msgr-search-box">
+            <span class="msgr-search-icon">🔍</span>
+            <input type="search" id="live-msgr-search-input" placeholder="Search users (e.g. HR, Shift Lead, Payroll)..." autocomplete="off"/>
+          </div>
+
+          <div class="live-msgr-section-label">Team Members &amp; Desks</div>
+          <div class="live-msgr-contacts" id="live-msgr-contacts">
+            <!-- Dynamic contact buttons populated by home.js -->
+          </div>
+        </div>
+
+        <!-- Chat Stream Panel -->
+        <div class="live-msgr-chat-panel">
+          <div class="live-msgr-chat-header" id="live-msgr-active-header">
+            <!-- Populated dynamically -->
+          </div>
+
+          <div class="live-msgr-messages-log" id="live-msgr-messages-log">
+            <!-- Chat bubbles -->
+          </div>
+
+          <!-- Typing indicator bar -->
+          <div class="live-msgr-typing" id="live-msgr-typing" style="display:none;">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <em id="live-msgr-typing-text">Colleague is typing...</em>
+          </div>
+
+          <!-- Quick Prompts Chips -->
+          <div class="live-msgr-chips">
+            <button type="button" class="msgr-chip" data-msg="Hello! Can you check my shift schedule for tomorrow?">⏱️ Shift update</button>
+            <button type="button" class="msgr-chip" data-msg="Where can I download the latest monthly payslip?">📄 Payslip download</button>
+            <button type="button" class="msgr-chip" data-msg="I submitted a leave request for next week. Please review.">🏖️ Leave query</button>
+            <button type="button" class="msgr-chip" data-msg="Aadhaar and PAN documents uploaded to Digital Vault.">💼 Vault verification</button>
+          </div>
+
+          <!-- Composer Form -->
+          <form class="live-msgr-composer" id="live-msgr-composer">
+            <input type="text" id="live-msgr-input" placeholder="Type a message to communicate in real time... (Press Enter)" autocomplete="off" required/>
+            <button type="submit" class="msgr-send-btn">
+              <span>Send</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/home.js"></script>
 </body>
 </html>
